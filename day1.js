@@ -29,7 +29,8 @@ function setup_calc(div) {
     $(div).append(input,button,output);
 
 }
- 
+
+var isClosed = true;
 
 function read_operand(tokens) {
     if (tokens === null) {
@@ -38,10 +39,12 @@ function read_operand(tokens) {
     var num = tokens.shift();
     
     if (num === "(") {
+        isClosed = false;
         return evaluate(tokens);
     }
     else if (num === ")") {
         tokens.shift();
+        isClosed = true;
     }
     num = parseInt(num, 10);
     if (isNaN(num)) {
@@ -65,7 +68,6 @@ function evaluate(tokens) {
         var listOfOperaters = ['*','+','-','/'];
         
         if (operator === ")") {
-            //tokens.shift();
             return value;
         }
         
@@ -88,6 +90,9 @@ function evaluate(tokens) {
             value = value / temp;
         }
         //operator = tokens.shift();
+    }
+    if (!isClosed) {
+        throw "expression not balanced";
     }
     return value;
 }
