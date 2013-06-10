@@ -4,8 +4,18 @@ calculate: evaluate the value of an arithmetic expression
 function calculate(text) {
     var pattern = /\d+|\+|\-|\*|\/|\(|\)/g;
     var tokens = text.match(pattern);
-    return tokens;
-    //return JSON.stringify(tokens);
+    try {
+        var value = evaluate(tokens);
+        if (tokens.length !== 0 ) {
+            throw "ill-formed expression";
+        }
+        return value;
+        
+    }
+    catch(e) {
+        return e;
+    }
+
 }
 
 function setup_calc(div) {
@@ -13,8 +23,7 @@ function setup_calc(div) {
     var output = $('<div></div>');
     var button = $('<button>Calculate</button>');
     button.bind("click", function() {
-        var tokens = calculate(input.val());
-        output.text(read_operand(tokens));
+        output.text(String(calculate(input.val())));
     });
     
     $(div).append(input,button,output);
@@ -23,44 +32,66 @@ function setup_calc(div) {
  
 
 function read_operand(tokens) {
-    try {
-        if (tokens.length < 1) {
-            throw "empty list";
-        }
-        var num = tokens.shift();
-        num = parseInt(num, 10);
+    if (tokens === null) {
+        throw "empty list";
+    }
+    var num = tokens.shift();
+    
+    if (num === "(") {
+        return evaluate(tokens);
+    }
+    else if (num === ")") {
+        tokens.shift();
+    }
+    num = parseInt(num, 10);
+    if (isNaN(num)) {
+        throw "not a number";
+    }
+    else {
+            return num;
+    }
+
+}
+
+function evaluate(tokens) {
+    if (tokens === null) {
+        throw "empty list";
+    }
+    
+    var value = read_operand(tokens);
+
+    while (tokens.length !== 0) {
+        var operator = tokens.shift();
+        var listOfOperaters = ['*','+','-','/'];
         
-        if (isNaN(num)) {
-            throw "not a number";
+        if (operator === ")") {
+            //tokens.shift();
+            return value;
+        }
+        
+        if ($.inArray(operator, listOfOperaters) == -1) { //if not in the array
+            throw "unrecognized operator";
+        }
+        
+        var temp = read_operand(tokens);
+        console.log("temp var: " + temp);
+        if (operator === "+") {
+            value = value + temp;
+        }
+        else if (operator === "-") {
+            value = value - temp;
+        }
+        else if (operator === "*") {
+            value = value * temp;
         }
         else {
-                console.log("the var num as int: " + num);
-                return num;
+            value = value / temp;
         }
-
+        //operator = tokens.shift();
     }
-    catch(e) {
-        return e;
-    }
-
+    return value;
 }
 
-function evalutate(tokens) {
-    try {
-        if (tokens.length < 1) {
-            throw "empty list";
-        }
-        
-        var value = read_operand(tokens);
-        while (tokens.length !== 0) {
-            
-        }
-        
-    }
-    catch(e) {
-        return e;
-    }
-}
 
 $(document).ready(function () {
    $('.calculator').each(function () {
