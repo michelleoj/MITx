@@ -46,6 +46,18 @@ function read_operand(tokens) {
         tokens.shift();
         isClosed = true;
     }
+    if (num === "-") {
+        num = tokens.shift();
+        if (!isNaN(num)) { // if next value is a number
+            //num = tokens.unshift();
+            num *= -1;
+            console.log("negated number: " + num);
+            return num;
+        }
+        else {
+            return evaluate(tokens);
+        }
+    }
     num = parseInt(num, 10);
     if (isNaN(num)) {
         throw "not a number";
@@ -68,6 +80,7 @@ function evaluate(tokens) {
         var listOfOperaters = ['*','+','-','/'];
         
         if (operator === ")") {
+            isClosed = true;
             return value;
         }
         
