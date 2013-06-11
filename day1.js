@@ -2,7 +2,7 @@
 calculate: evaluate the value of an arithmetic expression
 */
 function calculate(text) {
-    var pattern = /\d+|\+|\-|\*|\/|\(|\)/g;
+    var pattern = /\d+|\+|\-|\*|\/|\(|\)|\./g;
     var tokens = text.match(pattern);
     try {
         var value = evaluate(tokens);
@@ -55,8 +55,7 @@ function read_operand(tokens) {
             return num;
         }
         else {
-            //TODO: must check if -(3 + 4) case works
-            return evaluate(tokens);
+            return -1 * evaluate(tokens);
         }
     }
     num = parseInt(num, 10);
@@ -67,6 +66,10 @@ function read_operand(tokens) {
             return num;
     }
 
+}
+
+function numMaker(tokens) {
+    
 }
 
 function evaluate(tokens) {
