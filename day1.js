@@ -20,7 +20,7 @@ function calculate(text) {
 
 function setup_calc(div) {
     var input = $('<input></input>', {type: "text", size: 50});
-    var output = $('<div></div>');
+    var output = $('<div class="output"></div>');
     var button = $('<button>Calculate</button>');
     button.bind("click", function() {
         output.text(String(calculate(input.val())));
@@ -51,7 +51,6 @@ function read_operand(tokens) {
         if (!isNaN(num)) { // if next value is a number
             //num = tokens.unshift();
             num *= -1;
-            console.log("negated number: " + num);
             return num;
         }
         else {
