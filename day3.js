@@ -93,5 +93,40 @@ function test_mouse() {
     var DOMcanvas = JQcanvas[0];
     
     var ctx = DOMcanvas.getContext('2d');
+    
+    var bg_img = $("<canvas></canvas>")[0];
+    bg_img.width = 200;
+    bg_img.height = 200;
+    var bctx = bg_img.getContext('2d');
+    bctx.fillStyle = "#f0fff0";
+    bctx.fillRect(0,0,200,200);
+    bctx.fillStyle = "#ff00ff";
+    bctx.fillRect(10,10,100,100);
+    
+    // image, x, y
+    ctx.drawImage(bg_img,0,0);
+    
+    JQcanvas.on("mousemove", function(event) {
+        var mx = event.pageX;
+        var my = event.pageY;
+        
+        var offset = JQcanvas.offset(); // {left: ..., top: ...}
+        mx = Math.round(mx - offset.left);
+        my = Math.round(my - offset.top);
+        
+        ctx.drawImage(bg_img,0,0);
+        
+        ctx.beginPath();
+        ctx.moveTo(mx-10, my);
+        ctx.lineTo(mx+10, my);
+        ctx.moveTo(mx, my-10);
+        ctx.lineTo(mx, my+10);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    });
 
 }
+
+
+
