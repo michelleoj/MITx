@@ -15,8 +15,8 @@ var Inspector = function($) {
     + "  <textarea class='text-editor'></textarea>"
     + "  <div class='property-editor'>"
     + "    <div class='node-lookup'>"
-    + "      <input class='selector' /><input class='nth' />"
-    + "      <button>Search</button>"
+    + "      <input class='selector' />"
+    + "      <button>Search</button><button class='mousehover'>Mouse</button>"
     + "    </div>"
     + "    <div class='property-list' color='black'>"
     + "    </div>" 
@@ -38,12 +38,16 @@ var Inspector = function($) {
   var searchBySelector = function() {
       var selectorBox = root.find(".selector");
       var selectorStr = selectorBox.val();
-      var selection = $(selectorStr);
-      var html = selection.html();
-      var textEditor = root.find(".text-editor");
-      textEditor.val(html);
-      propertyInfo();
+      var selection = $(selectorStr).first();
+      showElement(selection);
   };
+    
+    var showElement = function(selection) {
+         var html = selection.html();
+          var textEditor = root.find(".text-editor");
+          textEditor.val(html);
+          propertyInfo(selection);
+    };
     
   var displayCustomProperty = function(e) {
       if (e.keyCode == 13 && e.shiftKey) {
@@ -57,12 +61,9 @@ var Inspector = function($) {
       }
   };
     
-  function propertyInfo() {
-        console.log("I made it!");
+  function propertyInfo(selection) {
+
         var info = "";
-        var selectorBox = root.find(".selector");
-        var selectorStr = selectorBox.val();
-        var selection = $(selectorStr);
         var propertyBox = root.find(".property-list");
         var selectionSize = "Width: " + selection.css("width") + ", " + "Height: " +                   selection.css("height") + "\n";
         var selectionPos = "Top: " + selection.css("top") + ", Left: " + selection.css("left")+ "\n";
@@ -78,6 +79,26 @@ var Inspector = function($) {
         propertyBox.css("font-family", "Courier New");  
   };
 
+    var elementClicked = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var objClicked = $(e.target);
+        objClicked.removeClass("selected");
+        showElement(objClicked);
+        $("*").off("hover", elementHover);
+    };
+    
+    var elementHover = function() {
+        $(".selected").removeClass("selected").off("click", elementClicked);
+        $(this).addClass("selected").on("click", elementClicked);
+    }
+    function selection() {
+        var allElements = $("*");
+        allElements.on("hover", elementHover);
+        
+        
+   };
+
   /*
    * Construct the UI
    */
@@ -87,7 +108,8 @@ var Inspector = function($) {
     root.append(template);
     root.find(".handle").on("click", toggle);
     root.find(".node-lookup button").on("click", searchBySelector);
-    root.find(".text-editor").on("keypress", displayCustomProperty);    
+    root.find(".text-editor").on("keypress", displayCustomProperty); 
+    root.find(".mousehover").on("click", selection);
   };
   
   return exports;
