@@ -18,8 +18,7 @@ var Inspector = function($) {
     + "      <input class='selector' /><input class='nth' />"
     + "      <button>Search</button>"
     + "    </div>"
-    + "    <div class='property-list'>"
-    + "      <p class='info'>Hi</p>"
+    + "    <div class='property-list' color='black'>"
     + "    </div>" 
     + "  </div>" 
     + "</div>" 
@@ -43,7 +42,6 @@ var Inspector = function($) {
       var html = selection.html();
       var textEditor = root.find(".text-editor");
       textEditor.val(html);
-      console.log("Here first");
       propertyInfo();
   };
     
@@ -65,16 +63,19 @@ var Inspector = function($) {
         var selectorBox = root.find(".selector");
         var selectorStr = selectorBox.val();
         var selection = $(selectorStr);
-        var propertyBox = root.find(".info");
+        var propertyBox = root.find(".property-list");
         var selectionSize = "Width: " + selection.css("width") + ", " + "Height: " +                   selection.css("height") + "\n";
         var selectionPos = "Top: " + selection.css("top") + ", Left: " + selection.css("left")+ "\n";
         var selectionSpacing = "Margin: " + selection.css("margin") + ", Padding: " + selection.css("padding")+ "\n";
         var selectionBgFgColor = "Background Color: " + selection.css("background-color") + ", Foreground Color: " + selection.css("foreground-color")+ "\n";
         var selectionTag = "Tag: " + selection.prop("tagName")+ "\n";
         var numOfChildren = "# of Children: " + String(selection.contents().length);
-        info.append(selectionSize, selectionPos, selectionSpacing, selectionBgFgColor, selectionTag, numOfChildren);
-        var properties = propertyBox.val(info);
-        console.log("I finished!");    
+        info = selectionSize+"<br>"+selectionPos+"<br>"+selectionSpacing+"<br>"+selectionBgFgColor+"<br>"+selectionTag+"<br>"+numOfChildren;
+
+        propertyBox.html(info);
+        propertyBox.css("color", "black");
+        propertyBox.css("font-size", "12px");
+        propertyBox.css("font-family", "Courier New");  
   };
 
   /*
