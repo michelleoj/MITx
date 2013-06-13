@@ -19,6 +19,7 @@ var Inspector = function($) {
     + "      <button>Search</button>"
     + "    </div>"
     + "    <div class='property-list'>"
+    + "      <p class='info'>Hi</p>"
     + "    </div>" 
     + "  </div>" 
     + "</div>" 
@@ -42,10 +43,13 @@ var Inspector = function($) {
       var html = selection.html();
       var textEditor = root.find(".text-editor");
       textEditor.val(html);
+      console.log("Here first");
+      propertyInfo();
   };
     
-  var displayCustomProperty = function(event) {
-      if (event.keyCode == 38) {
+  var displayCustomProperty = function(e) {
+      if (e.keyCode == 13 && e.shiftKey) {
+          e.preventDefault();
           var textEditor = root.find(".text-editor");
           var whatToDisplay = textEditor.val();
           var selectorBox = root.find(".selector");
@@ -53,8 +57,26 @@ var Inspector = function($) {
           var selection = $(selectorStr);
           selection.html(whatToDisplay);
       }
-  }
+  };
     
+  function propertyInfo() {
+        console.log("I made it!");
+        var info = "";
+        var selectorBox = root.find(".selector");
+        var selectorStr = selectorBox.val();
+        var selection = $(selectorStr);
+        var propertyBox = root.find(".info");
+        var selectionSize = "Width: " + selection.css("width") + ", " + "Height: " +                   selection.css("height") + "\n";
+        var selectionPos = "Top: " + selection.css("top") + ", Left: " + selection.css("left")+ "\n";
+        var selectionSpacing = "Margin: " + selection.css("margin") + ", Padding: " + selection.css("padding")+ "\n";
+        var selectionBgFgColor = "Background Color: " + selection.css("background-color") + ", Foreground Color: " + selection.css("foreground-color")+ "\n";
+        var selectionTag = "Tag: " + selection.prop("tagName")+ "\n";
+        var numOfChildren = "# of Children: " + String(selection.contents().length);
+        info.append(selectionSize, selectionPos, selectionSpacing, selectionBgFgColor, selectionTag, numOfChildren);
+        var properties = propertyBox.val(info);
+        console.log("I finished!");    
+  };
+
   /*
    * Construct the UI
    */
@@ -64,8 +86,7 @@ var Inspector = function($) {
     root.append(template);
     root.find(".handle").on("click", toggle);
     root.find(".node-lookup button").on("click", searchBySelector);
-    root.find(".text-editor").on("keypress", displayCustomProperty);
-        
+    root.find(".text-editor").on("keypress", displayCustomProperty);    
   };
   
   return exports;
