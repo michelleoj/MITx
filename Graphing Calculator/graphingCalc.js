@@ -148,6 +148,8 @@ var graphcalc = (function () {
                     
                     $("#xCoord").html("X Coord: " + xCoord.toFixed(2));
                     $("#yCoord").html("Y Coord: " + yCoord.toFixed(2));
+                    
+                    //search the list of y values so that you display it correctly
                     console.log("X Coord: " + xCoord + "\n" + "Y Coord: " + yCoord);
                 });
             }
