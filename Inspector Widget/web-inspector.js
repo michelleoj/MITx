@@ -16,7 +16,7 @@ var Inspector = function($) {
     + "  <div class='property-editor'>"
     + "    <div class='node-lookup'>"
     + "      <input class='selector' />"
-    + "      <button>Search</button><button class='mousehover'>Mouse</button>"
+    + "      <button class='search'>Search</button><button class='mousehover'>Mouse</button>"
     + "    </div>"
     + "    <div class='property-list' color='black'>"
     + "    </div>" 
@@ -85,15 +85,17 @@ var Inspector = function($) {
         var objClicked = $(e.target);
         objClicked.removeClass("selected");
         showElement(objClicked);
-        $("*").off("hover", elementHover);
+        $("#wrapper").find("*").off("hover", elementHover);
     };
     
     var elementHover = function() {
-        $(".selected").removeClass("selected").off("click", elementClicked);
-        $(this).addClass("selected").on("click", elementClicked);
-    }
+            $(".selected").removeClass("selected").off("click", elementClicked);
+            $(this).addClass("selected").on("click", elementClicked);
+
+    };
+
     function selection() {
-        var allElements = $("*");
+        var allElements = $("#wrapper").find("*");
         allElements.on("hover", elementHover);
         
         
@@ -107,7 +109,7 @@ var Inspector = function($) {
       
     root.append(template);
     root.find(".handle").on("click", toggle);
-    root.find(".node-lookup button").on("click", searchBySelector);
+    root.find(".search").on("click", searchBySelector);
     root.find(".text-editor").on("keypress", displayCustomProperty); 
     root.find(".mousehover").on("click", selection);
   };
