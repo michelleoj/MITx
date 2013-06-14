@@ -4,41 +4,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="https://web.mit.edu/6.mitx/www/calculator.js"></script>
 <script src="graphingCalc.js"></script>
-<style>
-    .graphcalc {
-        position: absolute;
-        width: 400px;
-        height: 340px;
-        background-color: gray;
-    }
-    
-    #graphWindow {
-        position: relative;
-        margin: 25px;
-        border: 1px solid black;
-        background-color: white;
-        
-    }
-    
-    #inputs {
-        margin: 0 25px;
-    }
-    
-    input[type="text"] {
-        margin-left: 5px;
-    }
-    
-</style>
+<link rel="stylesheet" href="graphingCalc.css" />
 </head>
 <body>
 <div class="graphcalc">
-    <canvas id="graphWindow" width="350" height="200"></canvas>
+    <canvas id="graphWindow"></canvas>
     <div id="inputs"> 
-        <div>F(x)<input id="fxnInput" type="text" size="57"></input></div>
-        <div>Min x<input id="minX" type="text", size="20"></input>
-        Max x<input id="maxX" type="text"size:="20"></input></div>
-        <div><button id="plotbutton">Plot</button></div>
-    </div>   
+        F(x):  <input id="fxnInput" type="text"></input><br>
+        minX: <input id="minX" type="text" size="10"></input><br>
+    
+        maxX: <input id="maxX" type="text" size="10"></input><br>
+        <button id="plotbutton">Plot</button>
+    </div>  
 </div>
 </body>
 </html>

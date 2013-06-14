@@ -55,6 +55,9 @@ var graphcalc = (function () {
             ctx.lineTo(x[c]*xscale- parseFloat(x1)*xscale,ymax*yscale-y[c]*yscale +10);
         }
         ctx.stroke();
+        
+        
+        
     }
     
     function throw_error(e, ctx) {
@@ -64,6 +67,8 @@ var graphcalc = (function () {
         ctx.fillStyle = "black";
         ctx.fillText(e,100,100);
     }
+    
+    
    
     function setup(div) {
         
@@ -75,6 +80,12 @@ var graphcalc = (function () {
             var x2 = String($('#maxX').val());
             
             graph(canvas, expression, x1, x2);
+            
+            var can = $('canvas');
+            var DOMcan = can[0];
+            
+            var ctx = DOMcan.getContext('2d');
+            //TODO KEEP WORKING ON THIS
         });
     }
     exports.setup = setup;
