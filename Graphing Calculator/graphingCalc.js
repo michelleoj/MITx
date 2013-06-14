@@ -7,14 +7,13 @@ var graphcalc = (function () {
         var DOMcanvas = JQcanvas[0];
         var ctx = DOMcanvas.getContext('2d');
         
-        ctx.beginPath();
-        ctx.fillStyle = "black";
-        ctx.font = "15px Georgia";
-        ctx.textAlign = "center"; // left, right
-        ctx.textBaseline = "middle"; // top, bottom, alphabetic
-        // text, x, y
+        DOMcanvas.width = 350;
+        DOMcanvas.height = 200;
+        // resets the graph when entering in a new function
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0,0,DOMcanvas.width,DOMcanvas.height);;
         
-        
+        // calculates the points for the graph 
         try {
             var tree = calculator.parse(x1);
             var value = calculator.evaluate(tree, {e: Math.E, pi: Math.PI});
@@ -24,26 +23,46 @@ var graphcalc = (function () {
             var parsedExp = calculator.parse(expression);
             var x = [];
             var y = [];
-            for (var v=value; v < value2; v += (value2 - value)/100) {
+            var xscale; var yscale; 
+            xscale = DOMcanvas.width/(parseFloat(x2) - parseFloat(x1));
+            var ymin = 0;
+            var ymax = 0;
+            var v = value;
+            while(v < value2) { 
+                var yvalue = parseFloat(calculator.evaluate(parsedExp, {e: Math.E, pi: Math.PI, x: v}));
                 x.push(v);
-                y.push(parseFloat(calculator.evaluate(parsedExp, {e: Math.E, pi: Math.PI, x: v})));
+                if (yvalue < ymin) {
+                    ymin = yvalue;
+                }
+                else if (yvalue > ymax) {
+                    ymax = yvalue;
+                }
+                y.push(yvalue);
+                v += (value2 - value)/100;
             }
+        } catch(e) {
+            throw_error(String(e), ctx);
+            return;
         }
-        catch(e) {
-             ctx.fillText(e,170, 100);
-        }
+        yscale = (DOMcanvas.height-20)/(ymax-ymin);
         
         
-        ctx.moveTo(x[0],y[0]);
+        
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 5;
+        ctx.moveTo(x[0]*xscale - parseFloat(x1)*xscale,ymax*yscale-y[0]*yscale +10);
         for (var c=1; c < x.length; c++) {
-            for(var d=1; d < y.length; d++) {
-                ctx.lineTo(x[c], y[d]);
-                ctx.strokeStyle = "black";
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
+            ctx.lineTo(x[c]*xscale- parseFloat(x1)*xscale,ymax*yscale-y[c]*yscale +10);
         }
-        
+        ctx.stroke();
+    }
+    
+    function throw_error(e, ctx) {
+        ctx.font = "15px Georgia";
+        ctx.textAlign = "center"; // left, right
+        ctx.textBaseline = "middle"; // top, bottom, alphabetic
+        ctx.fillStyle = "black";
+        ctx.fillText(e,100,100);
     }
    
     function setup(div) {
