@@ -1,3 +1,6 @@
+.selected {
+    border: 2px solid red;
+}
 .inspector {
   width: 100%;
   position: absolute;
@@ -65,3 +68,4 @@
 
 .inspector .property-editor .property-list {
 }
+

@@ -19,6 +19,7 @@ var Inspector = function($) {
     + "      <button class='search'>Search</button><button class='mousehover'>Mouse</button>"
     + "    </div>"
     + "    <div class='property-list' color='black'>"
+    + "     <p><br><font color='black' size='3'>To show a change in the html editor, hit Ctrl+Enter</font></p>"
     + "    </div>" 
     + "  </div>" 
     + "</div>" 
@@ -65,13 +66,17 @@ var Inspector = function($) {
 
         var info = "";
         var propertyBox = root.find(".property-list");
-        var selectionSize = "Width: " + selection.css("width") + ", " + "Height: " +                   selection.css("height") + "\n";
-        var selectionPos = "Top: " + selection.css("top") + ", Left: " + selection.css("left")+ "\n";
-        var selectionSpacing = "Margin: " + selection.css("margin") + ", Padding: " + selection.css("padding")+ "\n";
-        var selectionBgFgColor = "Background Color: " + selection.css("background-color") + ", Foreground Color: " + selection.css("foreground-color")+ "\n";
-        var selectionTag = "Tag: " + selection.prop("tagName")+ "\n";
+        var width = "Width: " + selection.css("width");
+        var height = "Height: " + selection.css("height");
+        var top = "Top: " + selection.css("top");
+        var left = "Left: " + selection.css("left");
+        var margin = "Margin: " + selection.css("margin");
+        var padding = "Padding: " + selection.css("padding");
+        var bgColor = "Background Color: " + selection.css("background-color");
+        var fgColor = "Foreground Color: " + selection.css("foreground-color");
+        var tag = "Tag: " + selection.prop("tagName");
         var numOfChildren = "# of Children: " + String(selection.contents().length);
-        info = selectionSize+"<br>"+selectionPos+"<br>"+selectionSpacing+"<br>"+selectionBgFgColor+"<br>"+selectionTag+"<br>"+numOfChildren;
+        info = width+"<br>"+height+"<br>"+top+"<br>"+left+"<br>"+margin+"<br>"+padding+"<br>"+bgColor+"<br>"+fgColor+"<br>"+tag+"<br>"+numOfChildren;
 
         propertyBox.html(info);
         propertyBox.css("color", "black");
