@@ -32,8 +32,6 @@ var quiz = (function () {
                      {"questionText": "What is Kanye West's new album name?",
                      "options": ["Jesus", "Yeezus", "Kingdom Come", "Kim"],
                      "solutionIndex": 1}];
-        
-    var answers = []; //answers from the students
     
     
      
@@ -44,24 +42,19 @@ var quiz = (function () {
     //input: takes in a question index and a student's answers
     //output: true if answer is correct
     function checkAnswer(ans) {
-        question = questions[curIndex];
+        var question = questions[curIndex];
         return question.options[question.solutionIndex] == ans;
+        
+        //will format it so that it just reads what the server says
     }
 
     function getAnswers() {
         // currentQuestionIndex
         
+        var question = questions[curIndex];
         var selectedAns = $('input[name=choice' + curIndex + ']:checked').val();
         
-        if (checkAnswer(selectedAns)) {
-            $('.feedback').html("<text>&nbsp &nbsp &nbsp You got it right!</text>");
-            incrementScore();
-
-
-        }
-        else {
-            $('.feedback').html("<text>&nbsp &nbsp &nbsp You got it wrong.</text>");
-        }
+        sendRequest(question.questionText, selectedAns, curIndex);
         
     }
     
@@ -81,7 +74,7 @@ var quiz = (function () {
                 else {
                     student.destroy({
                         success: function(student) {
-                        console.log("item destroyed");
+                            console.log("finished it");
                       }});  
                 }
             }
@@ -94,7 +87,6 @@ var quiz = (function () {
                     
         var question = $("<div></div>", {class: 'question'});
         var questionObj = questions[curIndex];
-        console.log("Cur Index: ", curIndex);
         var text = $("<div class='questionText'></div>").append((curIndex+1), ". ", questionObj.questionText);
        
         question.append(text);
@@ -135,11 +127,43 @@ var quiz = (function () {
             student.set("score", score+1);
             student.save();
             score = student.get("score");
-            console.log("score: ", score);
         }
             
     }
+    
+    function sendRequest(ques, ans, index) {
+        var boolean;
+        var req = $.ajax({
+        url: "http://localhost:8080/",
+        data: {ques: ques, ans: ans, index: index}
+        });
+        req.done(function(msg) {
+            console.log("i'm here");
+            boolean = parseBool(msg);
+            processResponse(boolean);
+        });
+        
+    }
 
+    function parseBool(str) {
+        if (str == "false") {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    
+    function processResponse(bool) {
+        if (bool) { 
+            $('.feedback').html("<text>&nbsp &nbsp &nbsp You got it right!</text>");
+            incrementScore();
+
+        }
+        else {
+            $('.feedback').html("<text>&nbsp &nbsp &nbsp You got it wrong.</text>");
+        }
+    }
     
     function incrementIndex() {
         if(local) {
@@ -151,6 +175,7 @@ var quiz = (function () {
             student.save();
             curIndex = student.get("curIndex");
         }
+        console.log("current index: ", curIndex);
     }
 
     function setup() {
@@ -174,7 +199,6 @@ var quiz = (function () {
         query.find({
             success:function(list) {
                 if (list.length === 0) {
-                    console.log("I'm here");
                     student.set("score", 0);
                     student.set("curIndex", 0);
                     student.save();
@@ -188,7 +212,6 @@ var quiz = (function () {
             }
             
         });
-        console.log("Student obj: ",student)
         
         
     }
@@ -197,6 +220,7 @@ var quiz = (function () {
 
     exports.setup = setup;
     exports.localOrParse = localOrParse;
+    exports.sendRequest = sendRequest;
     return exports;
     
     
@@ -204,14 +228,6 @@ var quiz = (function () {
 
 $(document).ready(function() {
     quiz.setup();
+
     
-//    var req = $.ajax({
-//        url: "http://localhost:8080/",
-//        data: {id: 10,}
-//    });
-//    
-//    req.done(function(msg) {
-//        console.log(msg);
-//    });
-//    console.log("what");
 });
