@@ -1,0 +1,102 @@
+.headerimg {
+    background-position: -50px -150px;
+    background-image: url('http://preview.turbosquid.com/Preview/2012/04/10__14_25_28/tt1-0000.jpg47234f69-cd93-4504-aadf-ea23b8c93c71Large.jpg');
+    width: 500px;
+    height: 350px;
+    margin: auto auto;
+}
+
+h1 {
+    text-align: center;
+    font-family: 'Helvetica Neue Ultra Lite' sans-serif;
+}
+
+
+.info {
+    width: 700px;   
+    margin: auto auto;
+    font-family: 'georgia';
+    font-size: 10pt;
+}
+
+.sprite {
+    display: inline-block;
+    position: relative;
+    top: 90px;
+    left: 100px;
+
+}
+
+#burger {
+	background: url('food.png') no-repeat -222px -136px;
+	width: 56px;
+	height: 56px;
+}
+
+#sushi {
+	background: url('food.png') no-repeat -122px -264px;
+	width: 56px;
+	height: 56px;
+}
+
+#taco {
+	background: url('food.png') no-repeat -222px -200px;
+	width: 56px;
+	height: 56px;
+}
+
+#icream {
+	background: url('food.png') no-repeat -22px -264px;
+	width: 56px;
+	height: 56px;
+}
+
+#cupcake {
+	background: url('food.png') no-repeat -422px -584px;
+	width: 56px;
+	height: 56px;
+}
+
+#apple {
+	background: url('food.png') no-repeat -326px -392px;
+	width: 52px;
+	height: 56px;
+    
+}
+
+#stomach-sprite {
+    display: inline-block;
+    float: left;
+    position: relative; 
+	background-image: url('stomach-hi.png');
+    background-repeat: no-repeat;
+    width: 400px;
+    height: 400px;
+    background-size: 95% 95%;
+    background-position: center center;
+    margin: 10px;
+}
+
+#tray {
+    display: inline-block;
+    float: left;
+    position: relative;
+    background-image: url('http://openclipart.org/people/dkdlv/plateau.svg');
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 400px;
+    height: 300px;
+}
+
+
+.application {
+    margin: auto auto;
+    width: 830px;
+    height: 420px;
+/*    border: 1px solid black;*/
+}
+
+
+
+
