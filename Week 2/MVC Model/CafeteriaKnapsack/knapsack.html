@@ -1,7 +1,10 @@
 <html>
     <head>
         <title>Cafeteria Knapsack Problem</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
         <link href="knapsack.css" rel="stylesheet">
+        <link href="tip-twitter.css" rel="stylesheet">
+        <script src="knapsack.js"></script>
     </head>
     <body>
         <h1>Cafeteria Knapsack Problem</h1>
@@ -19,23 +22,31 @@
                 </ol>
             </p>
             <p>
-                Let's try the strategy! Happy eating!
+                Let's try the strategy! Happy eating!<br>
+                Click an item to move to stomach!
             </p>
         </div>
     
-        <div class="application">
+        <div class="application" data-budget="20">
                 <span><div id="stomach-sprite"></div></span>
                 <span>
                     <div id="tray">
-                    <span><div class="sprite" id="burger" data-cal="500" data-price="5" data-name="burger"></div></span>
-                    <span><div class="sprite" id="sushi" data-cal="100" data-price="4" data-name="sushi"></div></span>
+                    <span><div class="sprite" id="burger" data-cal="500" data-price="7" data-name="burger"></div></span>
+                    <span><div class="sprite" id="sushi" data-cal="100" data-price="6" data-name="sushi"></div></span>
                     <span><div class="sprite" id="taco" data-cal="400" data-price="4" data-name="taco"></div></span><br>
-                    <span><div class="sprite" id="icream" data-cal="200" data-price="2" data-name="icream"></div></span>
+                    <span><div class="sprite" id="popsicle" data-cal="200" data-price="2" data-name="popsicle"></div></span>
                     <span><div class="sprite" id="cupcake" data-cal="200" data-price="3" data-name="cupcake"></div></span>
                     <span><div class="sprite" id="apple" data-cal="50" data-price="1" data-name="apple"></div></span>
                     </div>
                 </span>
         </div>
-    </body>
     
+        <div class="progress">
+            <p class="info">
+                <span id="amountcal">0</span> cal, $<span id=moneyleft>0</span>
+            
+            </p>
+        </div>
+    </body>
+    <script src="jquery.poshytip.js"></script>
 </html

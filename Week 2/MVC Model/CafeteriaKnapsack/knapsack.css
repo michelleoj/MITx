@@ -15,8 +15,9 @@ h1 {
 .info {
     width: 700px;   
     margin: auto auto;
-    font-family: 'georgia';
-    font-size: 10pt;
+    font-family: 'Courier New';
+    font-size: 12pt;
+    text-align: center;
 }
 
 .sprite {
@@ -25,6 +26,10 @@ h1 {
     top: 90px;
     left: 100px;
 
+}
+
+p {
+    padding-top: 20px;   
 }
 
 #burger {
@@ -45,7 +50,7 @@ h1 {
 	height: 56px;
 }
 
-#icream {
+#popsicle {
 	background: url('food.png') no-repeat -22px -264px;
 	width: 56px;
 	height: 56px;
@@ -67,7 +72,7 @@ h1 {
 #stomach-sprite {
     display: inline-block;
     float: left;
-    position: relative; 
+/*    position: relative; */
 	background-image: url('stomach-hi.png');
     background-repeat: no-repeat;
     width: 400px;
@@ -75,6 +80,10 @@ h1 {
     background-size: 95% 95%;
     background-position: center center;
     margin: 10px;
+/*
+    left: -20px;
+    top: -90px;
+*/
 }
 
 #tray {
@@ -87,16 +96,45 @@ h1 {
     background-repeat: no-repeat;
     width: 400px;
     height: 300px;
+    top: 0px;
 }
 
+.location {
+    display: inline-block;
+    float: left;
+    position: relative;
+    width: 400px;
+    height: 400px;
+    top: 0px;
+    margin-right: 20px;
+}
 
 .application {
     margin: auto auto;
     width: 830px;
-    height: 420px;
+    height: 400px;
+    background-color: pink;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 20px;
 /*    border: 1px solid black;*/
 }
 
-
-
+.progress {
+    background-color: #0fffff;
+    width: 830px;
+    height: 50px;
+    margin: auto auto;
+}
+    
+.item {
+    background-color: black;
+    opacity: 30%;
+    color: white;
+    font-size; 10px;
+    width: 100px;
+    height: 30px; 
+    z-index: 10;
+    
+}
 
