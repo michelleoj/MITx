@@ -23,8 +23,8 @@ h1 {
 .sprite {
     display: inline-block;
     position: relative;
-    top: 90px;
-    left: 100px;
+    top: 115px;
+    left: 40px;
 
 }
 
@@ -138,3 +138,6 @@ p {
     
 }
 
+.alert {
+    visibility: hidden;
+}

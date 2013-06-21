@@ -121,7 +121,8 @@ var knapsack = (function () {
     
     function View(div, model, controller) {
         //add an alert 
-        
+        var alert = $('<div class="alert">Oops! Knapsack capacity exceeded</div>');
+        div.append(alert);
         //add captions to each item
         
         var items = model.getItems();
@@ -132,46 +133,26 @@ var knapsack = (function () {
             var itemInfo = $("<div class='sprite' id='" + name + "' data-cal='" + item.calories + "' data-price='" + item.price + "' data-name='"+ name +"'></div>");
             itemInfo[0].item = item;
             tray.append(itemInfo);
-            if (name == "taco") {
-                tray.append("<br>");
-            }
+
             
         }
         
         //grab items again and adds the info to them
         var food = tray.find("div").each( function() {
-                if ($(this).attr("data-name") == "burger" || 
-                    $(this).attr("data-name") == "sushi" || 
-                    $(this).attr("data-name") == "taco" ) {
                     
-                    $(this).poshytip({
-                        content: "Price: $" + $(this).attr("data-price") + "<br>Calories: " + $(this).attr("data-cal"),
-                        className: 'tip-twitter',
-                        showTimeout: 0,
-                        alignTo: 'target',
-                        alignX: 'center',
-                        alignY: 'top',
-                        offsetY: 5,
-                        allowTipHover: false,
-                        fade: false,
-                        slide: false
-                    });
-                }
-                else {
-                    $(this).poshytip({
-                        content: "Price: $" + $(this).attr("data-price") + "<br>Calories: " + $(this).attr("data-cal"),
-                        className: 'tip-twitter',
-                        showTimeout: 0,
-                        alignTo: 'target',
-                        alignX: 'center',
-                        alignY: 'bottom',
-                        offsetY: 5,
-                        allowTipHover: false,
-                        fade: false,
-                        slide: false
-                    });             
-                }
-                    
+            $(this).poshytip({
+                content: "Price: $" + $(this).attr("data-price") + "<br>Calories: " + $(this).attr("data-cal"),
+                className: 'tip-twitter',
+                showTimeout: 0,
+                alignTo: 'target',
+                alignX: 'center',
+                alignY: 'top',
+                offsetY: 5,
+                allowTipHover: false,
+                fade: false,
+                slide: false
+                 
+            });
         });
 
     
@@ -179,8 +160,9 @@ var knapsack = (function () {
         // attach click handler to top-most div, since moving DOM objects on and off
 	// page clears any event bindings
         div.on("click",function(event) {
-                console.log(event.target);
-                controller.itemClicked(event.target.item);
+                if ($(event.target).attr("class") == "sprite" ) {
+                    controller.itemClicked(event.target.item);
+                }
             });
         
         //set up stomach display
@@ -216,6 +198,18 @@ var knapsack = (function () {
         }
         
         model.on("item moved",position_items);
+        
+        function show_alert() {
+            // make alert visible for a total of 3 seconds
+            alert.animate({opacity: 1},1000);
+            alert.animate({opacity: 1},1000); // pause
+            alert.animate({opacity: 0},1000);
+        }
+        
+        controller.on("budget overflow",show_alert);
+
+        
+        return {};
 
     }
     
