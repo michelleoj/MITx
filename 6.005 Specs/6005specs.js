@@ -122,6 +122,12 @@ var specsExercise = (function () {
             handler.trigger('loaded', [specs, imple]);
         }
         
+        /************/
+        //CHANGES
+        
+        //CHANGES
+        /************/
+        
         function updateSpec(name, radius, x, y) {
             //update info for the appropriate spec
         }
@@ -156,6 +162,12 @@ var specsExercise = (function () {
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
         var checkDisplay = $('<div class="checkDisplay wide short"></div>');
+        /************/
+        //CHANGES
+        var checkButton = $('<button class="btn btn-primary">Check</button>');
+        checkDisplay.append(checkButton);
+        //CHANGES
+        /************/
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
@@ -167,6 +179,11 @@ var specsExercise = (function () {
             var imple = data[1];
             
             canvas.clear();
+            /************/
+            //CHANGES
+            specsDisplay.html('');
+            //CHANGES
+            /************/
             
             for(s in specs) {
                 var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.5),name: specs[s].getName()})
@@ -174,13 +191,37 @@ var specsExercise = (function () {
                 var group1 = new fabric.Group([circle1, text1], {top:randomInteger(448), left:randomInteger(448)});
                 
                 canvas.add(group1);
+                
+                /************/
+                //CHANGES
+                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span>');
+                //CHANGES
+                /************/
             }
             
             var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(448), left:randomInteger(448)});
             impleCircle.hasControls = false;
             canvas.add(impleCircle);
             
+            /************/
+            //CHANGES
+            impleDisplay.html(imple.getSpec());
+            //CHANGES
+            /************/
+            
             canvas.forEachObject(function (obj) {
+                /************/
+                //CHANGES
+                obj.on('selected', function () {
+                    $('.specSpan').each(function () {
+                        if($(this).attr('data-id') === obj.item(1).text)
+                            $(this).css('background-color','lightgray');
+                        else
+                            $(this).css('background-color','white');
+                    });
+                });
+                //CHANGES
+                /************/
                 obj.lockUniScaling = true;
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
