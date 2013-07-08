@@ -1,11 +1,30 @@
-.6005specs {
+.specs {
     border: 1px solid gray;
-    height: 400;
-    width: 400;
-    background-color: black;
+    height: 600px;
+    width: 800px;
+    margin: auto auto;
 }
 
-.vennDiagrams {
-    height: 400;
-    width: 400;
+.specs .short {
+    height: 148;
+}
+
+.specs .tall {
+    height: 448;
+}
+
+.specs .narrow {
+    width: 348;
+}
+
+.specs .wide {
+    width: 448;
+}
+
+.specs div {
+    float: left;
+    border: 1px solid lightgray;
+}
+
+.specs .vennDiagrams {
 }
