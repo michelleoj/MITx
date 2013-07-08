@@ -68,3 +68,7 @@ function Imple(name, text) {
     Spec.call(this, name, text);
 }
 
+inherit(Imple, Spec);
+
+//------------------------------
+
