@@ -1,5 +1,11 @@
 .6005specs {
-    height: 400px;
-    width: 600px;
     border: 1px solid gray;
+    height: 400;
+    width: 400;
+    background-color: black;
+}
+
+.vennDiagrams {
+    height: 400;
+    width: 400;
 }
