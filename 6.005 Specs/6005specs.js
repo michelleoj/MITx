@@ -29,7 +29,6 @@ function Spec(name, text) {
     this.name = name;
     this.text = text;
     this.radius = 0;
-    this.diameter = 2*this.radius;
     
 }
 
@@ -44,9 +43,6 @@ Spec.prototype = {
     getRadius: function() {
         return this.radius;
     },
-    getDiameter: function() {
-        return this.diamter;
-    },
     setName: function(n) {
         this.name = n;
     },
@@ -55,9 +51,6 @@ Spec.prototype = {
     },
     setRadius: function(r) {
         this.radius = r;
-    },
-    setDiameter: function(d) {
-        this.diameter = d;
     }
     
 }
