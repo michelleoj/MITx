@@ -24,13 +24,15 @@ function inherit(child, parent) {
 }
 
 //Specs object
-
+/************************************************************************************************************/
 function Spec(name, text) {
     this.name = name;
     this.text = text;
     this.radius = 0;
     this.specsContained = [];
     this.specsIntersected = [];
+    this.x = 0;
+    this.y = 0;
 }
 
 Spec.prototype = {
@@ -44,6 +46,18 @@ Spec.prototype = {
     getRadius: function() {
         return this.radius;
     },
+    getX: function() {
+        return this.x;
+    },
+    getY: function() {
+        return this.y;
+    },
+    contains: function(name) {
+        return this.specsContained.indexOf(name) >= 0;
+    },
+    intersects: function(name) {
+        return this.specsIntersected.indexOf(name) >= 0;
+    },
     setName: function(n) {
         this.name = n;
     },
@@ -53,14 +67,19 @@ Spec.prototype = {
     setRadius: function(r) {
         this.radius = r;
     },
-    contains: function(name) {
+    setPosition: function(x, y) {
+        this.x = x;
+        this.y = y;
+    },
+    doesContain: function(name) {
         this.specsContained.push(name);
     },
-    intersects: function(name) {
+    doesIntersect: function(name) {
         this.specsIntersected.push(name)
     }
     
 }
+/************************************************************************************************************/
 
 // Implementation object
 
@@ -114,24 +133,25 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-        var specObjects = [];
-        var implementation = '';
+/************************************************************************************************************/
+        var specObjects = {};
+        var implementation;
         
         function loadQuestion(specs, imple, relationships) {
-            //parsing stuff
+            for(s in specs)
+                specObjects[specs[s].getName()] = specs[s];
+            implementation = imple;
+            //store the relationships
             handler.trigger('loaded', [specs, imple]);
         }
         
-        /************/
-        //CHANGES
-        
-        //CHANGES
-        /************/
-        
         function updateSpec(name, radius, x, y) {
             //update info for the appropriate spec
+            specObjects[name].setRadius(radius);
+            specObjects[name].setPosition(x, y);
         }
-        
+
+/************************************************************************************************************/        
         function checkAnswer() {
             var correct = false;
             //check answer
@@ -162,12 +182,16 @@ var specsExercise = (function () {
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
         var checkDisplay = $('<div class="checkDisplay wide short"></div>');
-        /************/
-        //CHANGES
+/************************************************************************************************************/
         var checkButton = $('<button class="btn btn-primary">Check</button>');
         checkDisplay.append(checkButton);
-        //CHANGES
-        /************/
+        checkButton.on('click', controller.checkAnswer);
+        var correctDisplay = $('<div class="alert alert-success">Correct!</div>');
+        var wrongDisplay = $('<div class="alert alert-error">Wrong.</div>');
+        checkDisplay.append(correctDisplay, wrongDisplay);
+        correctDisplay.hide();
+        wrongDisplay.hide();
+/************************************************************************************************************/
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
@@ -179,58 +203,45 @@ var specsExercise = (function () {
             var imple = data[1];
             
             canvas.clear();
-            /************/
-            //CHANGES
             specsDisplay.html('');
-            //CHANGES
-            /************/
             
             for(s in specs) {
                 var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.5),name: specs[s].getName()})
                 var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-40});
-                var group1 = new fabric.Group([circle1, text1], {top:randomInteger(448), left:randomInteger(448)});
+                var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
                 canvas.add(group1);
                 
-                /************/
-                //CHANGES
-                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span>');
-                //CHANGES
-                /************/
+                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span><br>');
             }
             
-            var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(448), left:randomInteger(448)});
+            var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
             impleCircle.hasControls = false;
             canvas.add(impleCircle);
             
-            /************/
-            //CHANGES
             impleDisplay.html(imple.getSpec());
-            //CHANGES
-            /************/
             
             canvas.forEachObject(function (obj) {
-                /************/
-                //CHANGES
                 obj.on('selected', function () {
-                    $('.specSpan').each(function () {
-                        if($(this).attr('data-id') === obj.item(1).text)
-                            $(this).css('background-color','lightgray');
-                        else
-                            $(this).css('background-color','white');
-                    });
+                    if(obj.name === undefined) {
+                        $('.specSpan').each(function () {
+                            if($(this).attr('data-id') === obj.item(1).text)
+                                $(this).css('background-color',obj.item(0).fill);
+                            else
+                                $(this).css('background-color','white');
+                        });
+                    }
                 });
-                //CHANGES
-                /************/
                 obj.lockUniScaling = true;
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
+//                    controller.updateSpec(obj.name, obj.radius, point.x, point.y);
                     if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
-                        obj.animate('left', randomInteger(448), {onChange: canvas.renderAll.bind(canvas), duration: 100});
-                        obj.animate('top', randomInteger(448), {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                        obj.animate('left', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                        obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                 });
             });
@@ -242,14 +253,23 @@ var specsExercise = (function () {
         testSpecs.push(new Spec('f3','blah'));
         var testImple = new Imple('f4', 'blah');
         
-        loadSpecs([testSpecs, testImple]);
-        
         function displayAnswer(correct) {
-            return false;
+/************************************************************************************************************/
+            if(correct) {
+                correctDisplay.show();
+                wrongDisplay.hide();
+            }
+            else {
+                wrongDisplay.show();
+                correctDisplay.hide();
+            }
+
         }
         
         model.on('loaded', loadSpecs);
         model.on('checked', displayAnswer);
+        
+        model.loadQuestion(testSpecs, testImple);
     }
     
     function setup(div) {
@@ -287,21 +307,29 @@ function randomColor(opacity) {
         opacity+')';
 }
 
-/***************/
-//CHANGES
-function checkOverlap(x1, x2, y1, y2, r1, r2) {
+function checkOverlap(spec1, spec2) {
+    var x1 = spec1.getX();
+    var y1 = spec1.getY();
+    var r1 = spec1.getRadius();
+    var x2 = spec2.getX();
+    var y2 = spec2.getY();
+    var r2 = spec2.getRadius();
     var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     
     if (distance > (r1 + r2)) {
         console.log("no overlap");
     }
     else if (distance <= Math.abs(r1 - r2)) {
-        console.log("inside");
+        if(r1 > r2)
+            console.log("contains");
+        else
+            console.log("inside");
     }
     else {  // if (distance <= r1 + r2)
         console.log("overlap");
     }   
 }
+
 
 function fileHandler(file) { // returns the array of the specs and the implementation
     var str = file;
@@ -313,8 +341,8 @@ function fileHandler(file) { // returns the array of the specs and the implement
     
     
 }
-//CHANGES
-/***************/
+
+
 
 $(document).ready(function () {
     $('.specs').each(function () {
