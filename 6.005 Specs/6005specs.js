@@ -133,11 +133,13 @@ var specsExercise = (function () {
         var handler = UpdateHandler();
         var specObjects = {};
         var implementation;
+        var relationships;
         
-        function loadQuestion(specs, imple, relationships) {
+        function loadQuestion(specs, imple, rels) {
             for(s in specs)
                 specObjects[specs[s].getName()] = specs[s];
             implementation = imple;
+            relationships = rels;
             //store the relationships
             handler.trigger('loaded', [specs, imple]);
         }
@@ -150,18 +152,33 @@ var specsExercise = (function () {
    
 /***************************************************************/
         function checkAnswer() {
-            var correct = false;
+            var correct = true;
             var alreadyChecked= [];
+            var numRels = 0;
             for(i in specObjects) {
                 alreadyChecked.push(i+i);
                 for(j in specObjects) {
                     if(alreadyChecked.indexOf(i+j) < 0 & alreadyChecked.indexOf(j+i) < 0) {
                         alreadyChecked.push(i+j);
-                        checkOverlap(specObjects[i], specObjects[j]);
+                        var newRel = checkOverlap(specObjects[i], specObjects[j]);
+                        if(newRel !== '') {
+                            var newRelRev = checkOverlap(specObjects[j], specObjects[i]);
+                            if(relationships.indexOf(newRel) < 0 & relationships.indexOf(newRelRev) < 0)
+                                correct = false;
+                            numRels++;
+                        }
                     }
                 }
-                checkOverlap(specObjects[i], implementation);
+                var newRel = checkOverlap(specObjects[i], implementation);
+                if(newRel !== '') {
+                    var newRelRev = checkOverlap(implementation, specObjects[i]);
+                    if(relationships.indexOf(newRel) < 0 & relationships.indexOf(newRelRev) < 0)
+                        correct = false;
+                    numRels++;
+                }
             }
+            if(numRels !== relationships.length)
+                correct = false;
             handler.trigger('checked', correct);
         }
 /***************************************************************/
@@ -174,9 +191,26 @@ var specsExercise = (function () {
     }
     
     function Controller(model) {
-        function loadQuestion(hugeBlob) {
-            var specs, imple, relationships;
-            //do stuff
+        function loadQuestion(jsonThing) {
+            var specs = [], imple, relationships = [];
+/***************************************************************/
+            imple = new Imple(jsonThing['imple']['name'], jsonThing['imple']['text']);
+            for(s in jsonThing['specs']) {
+                var currentSpec = jsonThing['specs'][s];
+                specs.push(new Spec(s, currentSpec['text']));
+                for(o in currentSpec['contains']) {
+                    var relString = s+' contains '+currentSpec['contains'][o];
+                    if(relationships.indexOf(relString) < 0)
+                        relationships.push(relString);
+                }
+                for(o in currentSpec['intersects']) {
+                    var relString = s+' intersects '+currentSpec['intersects'][o];
+                    var relStringRev = currentSpec['intersects'][o]+' intersects '+s;
+                    if(relationships.indexOf(relString) < 0 & relationships.indexOf(relStringRev) < 0)
+                        relationships.push(relString);
+                }
+            }
+/***************************************************************/
             model.loadQuestion(specs, imple, relationships);
         }
         function updateSpec(name, radius, x, y) {
@@ -214,7 +248,6 @@ var specsExercise = (function () {
         var canvas = new fabric.Canvas('c1');
         
         function loadSpecs(data) {
-            console.log(data);
             var specs = data[0];
             var imple = data[1];
             
@@ -240,6 +273,7 @@ var specsExercise = (function () {
             canvas.forEachObject(function (obj) {
                 obj.on('selected', function () {
                     if(obj.name === undefined) {
+                        impleDisplay.css('background-color', 'white');
                         $('.specSpan').each(function () {
                             if($(this).attr('data-id') === obj.item(1).text)
                                 $(this).css('background-color',obj.item(0).fill);
@@ -247,36 +281,38 @@ var specsExercise = (function () {
                                 $(this).css('background-color','white');
                         });
                     }
+                    else {
+                        $('.specSpan').each(function () {
+                            $(this).css('background-color', 'white');
+                        });
+                        impleDisplay.css('background-color', impleCircle.fill.replace(',1)',',0.5)'));
+                    }
                 });
                 obj.lockUniScaling = true;
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
-/***************************************************************/
                 var point = obj.getCenterPoint();
                 if(obj.name === undefined)
                     controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
+                else
+                    controller.updateImple(point.x, point.y);
                 
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
+                    if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
+                        point.x = randomInteger(350)+48;
+                        point.y = randomInteger(350)+48;
+                        obj.animate('left', point.x, {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                        obj.animate('top', point.y, {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                    }
                     if(obj.name === undefined)
                         controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
-/***************************************************************/
                     else
                         controller.updateImple(point.x, point.y);
-                    if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
-                        obj.animate('left', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
-                        obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
-                    }
                 });
             });
         }
-        
-        var testSpecs = [];
-        testSpecs.push(new Spec('f1','boolean f1(int a, int b)<br>requires a, b are integers<br>returns true if equal, false otherwise'));
-        testSpecs.push(new Spec('f2','blah'));
-        testSpecs.push(new Spec('f3','blah'));
-        var testImple = new Imple('f4', 'blah');
         
         function displayAnswer(correct) {
             if(correct) {
@@ -292,7 +328,31 @@ var specsExercise = (function () {
         model.on('loaded', loadSpecs);
         model.on('checked', displayAnswer);
         
-        model.loadQuestion(testSpecs, testImple);
+        var testJSON = {
+            'specs': {
+                'f1': {
+                    'text': 'boolean f1(int a, int b)<br>requires a, b are integers<br>returns true if equal, false otherwise',
+                    'contains': [],
+                    'intersects': ['f2']
+                },
+                'f2': {
+                    'text': 'blah',
+                    'contains': [],
+                    'intersects': ['f1']
+                },
+                'f3': {
+                    'text': 'blah',
+                    'contains': ['f4'],
+                    'intersects': []
+                }
+            },
+            'imple': {
+                'name': 'f4',
+                'text': 'blah',
+            }
+        };
+        
+        controller.loadQuestion(testJSON);
     }
     
     function setup(div) {
@@ -339,16 +399,16 @@ function checkOverlap(spec1, spec2) {
     var r2 = spec2.getRadius();
     var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     if (distance > (r1 + r2)) {
-        console.log(spec1.getName()+" does not overlap "+spec2.getName());
+        return '';
     }
     else if (distance <= Math.abs(r1 - r2)) {
         if(r1 > r2)
-            console.log(spec1.getName()+" contains "+spec2.getName());
+            return spec1.getName()+" contains "+spec2.getName();
         else
-            console.log(spec1.getName()+" inside "+spec2.getName());
+            return spec1.getName()+" inside "+spec2.getName();
     }
     else {  // if (distance <= r1 + r2)
-        console.log(spec1.getName()+" overlaps "+spec2.getName());
+        return spec1.getName()+" intersects "+spec2.getName();
     }   
 }
 
