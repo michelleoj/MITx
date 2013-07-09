@@ -47,7 +47,11 @@
     overflow: auto;
 }
 
-.specs .specsDisplay .well {
+.specs .impleDisplay {
+    overflow: auto;
+}
+
+.specs pre {
     border-radius: 0;
     width: 326;
     padding: 10px;
