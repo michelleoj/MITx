@@ -151,8 +151,11 @@ var specsExercise = (function () {
 /************************************************************************************************************/
         function checkAnswer() {
             var correct = false;
-            for(var i=0; i<specObjects.length; i++) {
-                
+            for(i in specObjects) {
+                for(j in specObjects) {
+                    if(i !== j)
+                        checkOverlap(specObjects[i], specObjects[j]);
+                }
             }
             handler.trigger('checked', correct);
         }
@@ -247,6 +250,10 @@ var specsExercise = (function () {
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
+                var point = obj.getCenterPoint();
+                if(obj.name === undefined)
+                    controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                
 /************************************************************************************************************/
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
@@ -295,13 +302,13 @@ var specsExercise = (function () {
         //CHANGES
         
         //reads the file
-        $('link[data-src]').each(function () {
-            var self = $(this);
-            src = self.attr('data-src');
-            console.log("sorce: ", src);
-            $.get(src, fileHandler);
-            console.log("finished");
-        });
+//        $('link[data-src]').each(function () {
+//            var self = $(this);
+//            src = self.attr('data-src');
+//            console.log("sorce: ", src);
+//            $.get(src, fileHandler);
+//            console.log("finished");
+//        });
         //CHANGES
         /***************/
     }
@@ -331,16 +338,16 @@ function checkOverlap(spec1, spec2) {
     var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     
     if (distance > (r1 + r2)) {
-        console.log("no overlap");
+        console.log(spec1.getName()+" does not overlap "+spec2.getName());
     }
     else if (distance <= Math.abs(r1 - r2)) {
         if(r1 > r2)
-            console.log("contains");
+            console.log(spec1.getName()+" contains "+spec2.getName());
         else
-            console.log("inside");
+            console.log(spec1.getName()+" inside "+spec2.getName());
     }
     else {  // if (distance <= r1 + r2)
-        console.log("overlap");
+        console.log(spec1.getName()+" overlaps "+spec2.getName());
     }   
 }
 
@@ -349,7 +356,7 @@ function fileHandler(file) { // returns the array of the specs and the implement
     var str = file;
     var specImplArray = str.split("\n*/~\n");
     for (var i = 0; i < specImplArray.length; i++) {
-        console.log(specImplArray[i);
+        console.log(specImplArray[i]);
     }
 
     
