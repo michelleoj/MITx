@@ -273,8 +273,27 @@ function randomColor(opacity) {
         opacity+')';
 }
 
+/***************/
+//CHANGES
+function checkOverlap(x1, x2, y1, y2, r1, r2) {
+    var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    
+    if (distance > (r1 + r2)) {
+        console.log("no overlap");
+    }
+    else if (distance <= Math.abs(r1 - r2)) {
+        console.log("inside");
+    }
+    else {  // if (distance <= r1 + r2)
+        console.log("overlap");
+    }   
+}
+//CHANGES
+/***************/
+
 $(document).ready(function () {
     $('.specs').each(function () {
         specsExercise.setup($(this));
     });
 });
+
