@@ -162,6 +162,9 @@ var specsExercise = (function () {
     }
     
     function Controller(model) {
+        //read file
+        var specImpleData = fileHandler(); //array of the specs and 
+        
         function loadQuestion(hugeBlob) {
             var specs, imple, relationships;
             //do stuff
@@ -277,19 +280,7 @@ var specsExercise = (function () {
         var controller = Controller(model);
         var view = View(div, model, controller);
         
-        /***************/
-        //CHANGES
-        
-        //reads the file
-        $('link[data-src]').each(function () {
-            var self = $(this);
-            src = self.attr('data-src');
-            console.log("sorce: ", src);
-            $.get(src, fileHandler);
-            console.log("finished");
-        });
-        //CHANGES
-        /***************/
+
     }
     
     return {setup: setup};
@@ -331,14 +322,16 @@ function checkOverlap(spec1, spec2) {
 }
 
 
-function fileHandler(file) { // returns the array of the specs and the implementation
-    var str = file;
-    var specImplArray = str.split("\n*/~\n");
-    for (var i = 0; i < specImplArray.length; i++) {
-        console.log(specImplArray[i);
-    }
+function fileHandler() { // returns the array of the specs and the implementation
+    //reads the file
+    var fileStr = $('link[data-src]').each(function () {
+        var self = $(this);
+        src = self.attr('data-src');
+        $.get(src, fileHandler);
+    });
+    var specImplArray = fileStr.split("\n*/~\n");
 
-    
+    return specImplArray;    
     
 }
 
