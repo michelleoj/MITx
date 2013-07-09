@@ -192,6 +192,8 @@ var specsExercise = (function () {
     }
     
     function Controller(model) {
+
+
         function loadQuestion(jsonThing) {
             var specs = [], imple, relationships = [];
 /***************************************************************/
@@ -212,6 +214,7 @@ var specsExercise = (function () {
                 }
             }
 /***************************************************************/
+
             model.loadQuestion(specs, imple, relationships);
         }
         function updateSpec(name, radius, x, y) {
@@ -406,19 +409,16 @@ var specsExercise = (function () {
         var controller = Controller(model);
         var view = View(div, model, controller);
         
-        /***************/
-        //CHANGES
-        
-        //reads the file
-//        $('link[data-src]').each(function () {
-//            var self = $(this);
-//            src = self.attr('data-src');
-//            console.log("sorce: ", src);
-//            $.get(src, fileHandler);
-//            console.log("finished");
-//        });
-        //CHANGES
-        /***************/
+        var dataArray;
+        $('link[data-src]').each(function () {
+            var self = $(this);
+            src = self.attr('data-src');
+             $.get(src, function() {
+                 dataArray = fileHandler;
+             });
+        });
+
+        console.log(dataArray);
     }
     
     return {setup: setup};
@@ -459,14 +459,13 @@ function checkOverlap(spec1, spec2) {
 }
 
 
-function fileHandler(file) { // returns the array of the specs and the implementation
-    var str = file;
-    var specImplArray = str.split("\n*/~\n");
-    for (var i = 0; i < specImplArray.length; i++) {
-        console.log(specImplArray[i]);
-    }
+function fileHandler(f) { // returns the array of the specs and the implementation
+    //invariant: the last item in the array is ALWAYS the implementation
+    //reads the file
+    var fileStr = f;
+    var specImplArray = fileStr.split("*/~");
 
-    
+    return specImplArray;    
     
 }
 
