@@ -255,25 +255,25 @@ var specsExercise = (function () {
             specsDisplay.html('');
             
             for(s in specs) {
-                var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.5),name: specs[s].getName()})
+                var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.3),name: specs[s].getName()})
                 var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-40});
                 var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
                 canvas.add(group1);
                 
-                specsDisplay.append('<div class="well specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</div>');
+                specsDisplay.append('<pre class="prettyprint specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</pre>');
             }
             
             var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
             impleCircle.hasControls = false;
             canvas.add(impleCircle);
             
-            impleDisplay.html(imple.getSpec());
+            impleDisplay.html('<pre class="prettyprint impleSpan">'+imple.getSpec()+'</pre>');
             
             canvas.forEachObject(function (obj) {
                 obj.on('selected', function () {
                     if(obj.name === undefined) {
-                        impleDisplay.css('background-color', 'white');
+                        $('.impleSpan').css('background-color', 'white');
                         $('.specSpan').each(function () {
                             if($(this).attr('data-id') === obj.item(1).text)
                                 $(this).css('background-color',obj.item(0).fill);
@@ -285,7 +285,7 @@ var specsExercise = (function () {
                         $('.specSpan').each(function () {
                             $(this).css('background-color', 'white');
                         });
-                        impleDisplay.css('background-color', impleCircle.fill.replace(',1)',',0.5)'));
+                        $('.impleSpan').css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
                     }
                 });
                 obj.lockUniScaling = true;
@@ -331,24 +331,39 @@ var specsExercise = (function () {
         var testJSON = {
             'specs': {
                 'f1': {
-                    'text': 'boolean f1(int a, int b)<br>requires a, b are integers<br>returns true if equal, false otherwise',
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
                     'contains': [],
                     'intersects': ['f2']
                 },
                 'f2': {
-                    'text': 'blah',
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
                     'contains': [],
-                    'intersects': ['f1']
+                    'intersects': []
                 },
                 'f3': {
-                    'text': 'blah',
-                    'contains': ['f4'],
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': ['f7'],
+                    'intersects': []
+                },
+                'f4': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': ['f5','f6'],
+                    'intersects': []
+                },
+                'f5': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': ['f6'],
+                    'intersects': []
+                },
+                'f6': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': [],
                     'intersects': []
                 }
             },
             'imple': {
-                'name': 'f4',
-                'text': 'blah',
+                'name': 'f7',
+                'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
             }
         };
         
