@@ -131,11 +131,12 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-        var specObjects = {};
+        var specObjects;
         var implementation;
         var relationships;
         
         function loadQuestion(specs, imple, rels) {
+            specObjects = {};
             for(s in specs)
                 specObjects[specs[s].getName()] = specs[s];
             implementation = imple;
@@ -240,14 +241,15 @@ var specsExercise = (function () {
         var correctDisplay = $('<div class="alert alert-success">Correct!</div>');
         var wrongDisplay = $('<div class="alert alert-error">Wrong.</div>');
         checkDisplay.append(correctDisplay, wrongDisplay);
-        correctDisplay.hide();
-        wrongDisplay.hide();
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
         var canvas = new fabric.Canvas('c1');
         
         function loadSpecs(data) {
+            correctDisplay.hide();
+            wrongDisplay.hide();
+            
             var specs = data[0];
             var imple = data[1];
             
@@ -318,6 +320,7 @@ var specsExercise = (function () {
             if(correct) {
                 correctDisplay.show();
                 wrongDisplay.hide();
+                setTimeout(loadQuestion, 2000);
             }
             else {
                 wrongDisplay.show();
@@ -328,8 +331,8 @@ var specsExercise = (function () {
         model.on('loaded', loadSpecs);
         model.on('checked', displayAnswer);
         
-        var testJSON = {
-            'specs': {
+        var testJSON = [
+            {'specs': {
                 'f1': {
                     'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
                     'contains': [],
@@ -364,10 +367,38 @@ var specsExercise = (function () {
             'imple': {
                 'name': 'f7',
                 'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+            }},
+            {'specs': {
+                'f1': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': [],
+                    'intersects': ['f2']
+                },
+                'f2': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': [],
+                    'intersects': []
+                },
+                'f3': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': ['f7'],
+                    'intersects': []
+                }
+            },
+            'imple': {
+                'name': 'f7',
+                'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+            }}
+        ];
+        console.log(JSON.stringify(testJSON));
+        var questionNumber = 0;
+        function loadQuestion() {
+            if(questionNumber !== testJSON.length) {
+                controller.loadQuestion(testJSON[questionNumber]);
+                questionNumber++;
             }
-        };
-        
-        controller.loadQuestion(testJSON);
+        }
+        loadQuestion();
     }
     
     function setup(div) {
