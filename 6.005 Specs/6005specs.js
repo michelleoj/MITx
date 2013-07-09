@@ -24,7 +24,6 @@ function inherit(child, parent) {
 }
 
 //Specs object
-/************************************************************************************************************/
 function Spec(name, text) {
     this.name = name;
     this.text = text;
@@ -79,7 +78,6 @@ Spec.prototype = {
     }
     
 }
-/************************************************************************************************************/
 
 // Implementation object
 
@@ -133,7 +131,6 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-/************************************************************************************************************/
         var specObjects = {};
         var implementation;
         
@@ -150,15 +147,22 @@ var specsExercise = (function () {
             specObjects[name].setRadius(radius);
             specObjects[name].setPosition(x, y);
         }
-
-/************************************************************************************************************/        
+   
+/************************************************************************************************************/
         function checkAnswer() {
             var correct = false;
-            //check answer
+            for(var i=0; i<specObjects.length; i++) {
+                
+            }
             handler.trigger('checked', correct);
         }
         
-        return {loadQuestion: loadQuestion, updateSpec: updateSpec, checkAnswer: checkAnswer, on: handler.on};
+        function updateImple(x, y) {
+            implementation.setPosition(x, y);
+        }
+        
+        return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
+/************************************************************************************************************/
     }
     
     function Controller(model) {
@@ -170,11 +174,17 @@ var specsExercise = (function () {
         function updateSpec(name, radius, x, y) {
             model.updateSpec(name, radius, x, y);
         }
+/************************************************************************************************************/
+        function updateImple(x, y) {
+            model.updateImple(x, y);
+        }
+        
         function checkAnswer() {
             model.checkAnswer();
         }
         
-        return {loadQuestion: loadQuestion, updateSpec: updateSpec, checkAnswer: checkAnswer};
+        return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
+/************************************************************************************************************/
     }
     
     function View(div, model, controller) {
@@ -182,7 +192,7 @@ var specsExercise = (function () {
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
         var checkDisplay = $('<div class="checkDisplay wide short"></div>');
-/************************************************************************************************************/
+        
         var checkButton = $('<button class="btn btn-primary">Check</button>');
         checkDisplay.append(checkButton);
         checkButton.on('click', controller.checkAnswer);
@@ -191,7 +201,6 @@ var specsExercise = (function () {
         checkDisplay.append(correctDisplay, wrongDisplay);
         correctDisplay.hide();
         wrongDisplay.hide();
-/************************************************************************************************************/
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
@@ -212,7 +221,9 @@ var specsExercise = (function () {
                 
                 canvas.add(group1);
                 
-                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span><br>');
+/************************************************************************************************************/
+                specsDisplay.append('<div class="well specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</div>');
+/************************************************************************************************************/
             }
             
             var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
@@ -236,25 +247,29 @@ var specsExercise = (function () {
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
+/************************************************************************************************************/
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
-//                    controller.updateSpec(obj.name, obj.radius, point.x, point.y);
+                    if(obj.name === undefined)
+                        controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                    else
+                        controller.updateImple(point.x, point.y);
                     if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
                         obj.animate('left', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                         obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                 });
+/************************************************************************************************************/
             });
         }
         
         var testSpecs = [];
-        testSpecs.push(new Spec('f1','blah'));
+        testSpecs.push(new Spec('f1','boolean f1(int a, int b)<br>requires a, b are integers<br>returns true if equal, false otherwise'));
         testSpecs.push(new Spec('f2','blah'));
         testSpecs.push(new Spec('f3','blah'));
         var testImple = new Imple('f4', 'blah');
         
         function displayAnswer(correct) {
-/************************************************************************************************************/
             if(correct) {
                 correctDisplay.show();
                 wrongDisplay.hide();
@@ -263,7 +278,6 @@ var specsExercise = (function () {
                 wrongDisplay.show();
                 correctDisplay.hide();
             }
-/************************************************************************************************************/
         }
         
         model.on('loaded', loadSpecs);
@@ -293,7 +307,6 @@ function randomColor(opacity) {
         opacity+')';
 }
 
-/************************************************************************************************************/
 function checkOverlap(spec1, spec2) {
     var x1 = spec1.getX();
     var y1 = spec1.getY();
@@ -316,7 +329,6 @@ function checkOverlap(spec1, spec2) {
         console.log("overlap");
     }   
 }
-/************************************************************************************************************/
 
 $(document).ready(function () {
     $('.specs').each(function () {
