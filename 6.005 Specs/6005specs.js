@@ -24,7 +24,6 @@ function inherit(child, parent) {
 }
 
 //Specs object
-/************************************************************************************************************/
 function Spec(name, text) {
     this.name = name;
     this.text = text;
@@ -79,7 +78,6 @@ Spec.prototype = {
     }
     
 }
-/************************************************************************************************************/
 
 // Implementation object
 
@@ -133,7 +131,6 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-/************************************************************************************************************/
         var specObjects = {};
         var implementation;
         
@@ -150,15 +147,25 @@ var specsExercise = (function () {
             specObjects[name].setRadius(radius);
             specObjects[name].setPosition(x, y);
         }
-
-/************************************************************************************************************/        
+   
+/************************************************************************************************************/
         function checkAnswer() {
             var correct = false;
-            //check answer
+            for(i in specObjects) {
+                for(j in specObjects) {
+                    if(i !== j)
+                        checkOverlap(specObjects[i], specObjects[j]);
+                }
+            }
             handler.trigger('checked', correct);
         }
         
-        return {loadQuestion: loadQuestion, updateSpec: updateSpec, checkAnswer: checkAnswer, on: handler.on};
+        function updateImple(x, y) {
+            implementation.setPosition(x, y);
+        }
+        
+        return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
+/************************************************************************************************************/
     }
     
     function Controller(model) {
@@ -170,11 +177,17 @@ var specsExercise = (function () {
         function updateSpec(name, radius, x, y) {
             model.updateSpec(name, radius, x, y);
         }
+/************************************************************************************************************/
+        function updateImple(x, y) {
+            model.updateImple(x, y);
+        }
+        
         function checkAnswer() {
             model.checkAnswer();
         }
         
-        return {loadQuestion: loadQuestion, updateSpec: updateSpec, checkAnswer: checkAnswer};
+        return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
+/************************************************************************************************************/
     }
     
     function View(div, model, controller) {
@@ -182,7 +195,7 @@ var specsExercise = (function () {
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
         var checkDisplay = $('<div class="checkDisplay wide short"></div>');
-/************************************************************************************************************/
+        
         var checkButton = $('<button class="btn btn-primary">Check</button>');
         checkDisplay.append(checkButton);
         checkButton.on('click', controller.checkAnswer);
@@ -191,7 +204,6 @@ var specsExercise = (function () {
         checkDisplay.append(correctDisplay, wrongDisplay);
         correctDisplay.hide();
         wrongDisplay.hide();
-/************************************************************************************************************/
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
@@ -212,7 +224,9 @@ var specsExercise = (function () {
                 
                 canvas.add(group1);
                 
-                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span><br>');
+/************************************************************************************************************/
+                specsDisplay.append('<div class="well specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</div>');
+/************************************************************************************************************/
             }
             
             var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
@@ -236,25 +250,33 @@ var specsExercise = (function () {
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
+                var point = obj.getCenterPoint();
+                if(obj.name === undefined)
+                    controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                
+/************************************************************************************************************/
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
-//                    controller.updateSpec(obj.name, obj.radius, point.x, point.y);
+                    if(obj.name === undefined)
+                        controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                    else
+                        controller.updateImple(point.x, point.y);
                     if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
                         obj.animate('left', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                         obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                 });
+/************************************************************************************************************/
             });
         }
         
         var testSpecs = [];
-        testSpecs.push(new Spec('f1','blah'));
+        testSpecs.push(new Spec('f1','boolean f1(int a, int b)<br>requires a, b are integers<br>returns true if equal, false otherwise'));
         testSpecs.push(new Spec('f2','blah'));
         testSpecs.push(new Spec('f3','blah'));
         var testImple = new Imple('f4', 'blah');
         
         function displayAnswer(correct) {
-/************************************************************************************************************/
             if(correct) {
                 correctDisplay.show();
                 wrongDisplay.hide();
@@ -263,7 +285,6 @@ var specsExercise = (function () {
                 wrongDisplay.show();
                 correctDisplay.hide();
             }
-
         }
         
         model.on('loaded', loadSpecs);
@@ -281,13 +302,13 @@ var specsExercise = (function () {
         //CHANGES
         
         //reads the file
-        $('link[data-src]').each(function () {
-            var self = $(this);
-            src = self.attr('data-src');
-            console.log("sorce: ", src);
-            $.get(src, fileHandler);
-            console.log("finished");
-        });
+//        $('link[data-src]').each(function () {
+//            var self = $(this);
+//            src = self.attr('data-src');
+//            console.log("sorce: ", src);
+//            $.get(src, fileHandler);
+//            console.log("finished");
+//        });
         //CHANGES
         /***************/
     }
@@ -317,16 +338,16 @@ function checkOverlap(spec1, spec2) {
     var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     
     if (distance > (r1 + r2)) {
-        console.log("no overlap");
+        console.log(spec1.getName()+" does not overlap "+spec2.getName());
     }
     else if (distance <= Math.abs(r1 - r2)) {
         if(r1 > r2)
-            console.log("contains");
+            console.log(spec1.getName()+" contains "+spec2.getName());
         else
-            console.log("inside");
+            console.log(spec1.getName()+" inside "+spec2.getName());
     }
     else {  // if (distance <= r1 + r2)
-        console.log("overlap");
+        console.log(spec1.getName()+" overlaps "+spec2.getName());
     }   
 }
 
@@ -335,7 +356,7 @@ function fileHandler(file) { // returns the array of the specs and the implement
     var str = file;
     var specImplArray = str.split("\n*/~\n");
     for (var i = 0; i < specImplArray.length; i++) {
-        console.log(specImplArray[i);
+        console.log(specImplArray[i]);
     }
 
     
