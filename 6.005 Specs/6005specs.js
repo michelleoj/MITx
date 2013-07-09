@@ -114,7 +114,7 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-        var specObjects = [];
+        var specObjects = {};
         var implementation = '';
         
         function loadQuestion(specs, imple, relationships) {
@@ -130,6 +130,11 @@ var specsExercise = (function () {
         
         function updateSpec(name, radius, x, y) {
             //update info for the appropriate spec
+            /************/
+            //CHANGES
+            specObjects[name].setRadius(radius);
+            //CHANGES
+            /************/
         }
         
         function checkAnswer() {
@@ -166,6 +171,7 @@ var specsExercise = (function () {
         //CHANGES
         var checkButton = $('<button class="btn btn-primary">Check</button>');
         checkDisplay.append(checkButton);
+        checkButton.on('click', controller.checkAnswer);
         //CHANGES
         /************/
         
@@ -188,18 +194,18 @@ var specsExercise = (function () {
             for(s in specs) {
                 var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.5),name: specs[s].getName()})
                 var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-40});
-                var group1 = new fabric.Group([circle1, text1], {top:randomInteger(448), left:randomInteger(448)});
+                var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
                 canvas.add(group1);
                 
                 /************/
                 //CHANGES
-                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span>');
+                specsDisplay.append('<span class="specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</span><br>');
                 //CHANGES
                 /************/
             }
             
-            var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(448), left:randomInteger(448)});
+            var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
             impleCircle.hasControls = false;
             canvas.add(impleCircle);
             
@@ -213,12 +219,14 @@ var specsExercise = (function () {
                 /************/
                 //CHANGES
                 obj.on('selected', function () {
-                    $('.specSpan').each(function () {
-                        if($(this).attr('data-id') === obj.item(1).text)
-                            $(this).css('background-color','lightgray');
-                        else
-                            $(this).css('background-color','white');
-                    });
+                    if(obj.name === undefined) {
+                        $('.specSpan').each(function () {
+                            if($(this).attr('data-id') === obj.item(1).text)
+                                $(this).css('background-color',obj.item(0).fill);
+                            else
+                                $(this).css('background-color','white');
+                        });
+                    }
                 });
                 //CHANGES
                 /************/
@@ -228,9 +236,10 @@ var specsExercise = (function () {
                 
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
+                    controller.updateSpec(obj.name, obj.radius, point.x, point.y);
                     if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
-                        obj.animate('left', randomInteger(448), {onChange: canvas.renderAll.bind(canvas), duration: 100});
-                        obj.animate('top', randomInteger(448), {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                        obj.animate('left', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
+                        obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                 });
             });
