@@ -26,5 +26,18 @@
     border: 1px solid lightgray;
 }
 
-.specs .vennDiagrams {
+.specs .checkDisplay {
+    text-align: center;
+}
+
+.specs .checkDisplay .btn {
+    width: 100%;
+    height: 24%;
+    padding: 0;
+}
+
+.specs .checkDisplay .alert {
+    width: 100%;
+    height: 74%;
+    padding: 0;
 }
