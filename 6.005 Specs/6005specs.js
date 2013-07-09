@@ -148,24 +148,29 @@ var specsExercise = (function () {
             specObjects[name].setPosition(x, y);
         }
    
-/************************************************************************************************************/
+/***************************************************************/
         function checkAnswer() {
             var correct = false;
+            var alreadyChecked= [];
             for(i in specObjects) {
+                alreadyChecked.push(i+i);
                 for(j in specObjects) {
-                    if(i !== j)
+                    if(alreadyChecked.indexOf(i+j) < 0 & alreadyChecked.indexOf(j+i) < 0) {
+                        alreadyChecked.push(i+j);
                         checkOverlap(specObjects[i], specObjects[j]);
+                    }
                 }
+                checkOverlap(specObjects[i], implementation);
             }
             handler.trigger('checked', correct);
         }
+/***************************************************************/
         
         function updateImple(x, y) {
             implementation.setPosition(x, y);
         }
         
         return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
-/************************************************************************************************************/
     }
     
     function Controller(model) {
@@ -177,7 +182,7 @@ var specsExercise = (function () {
         function updateSpec(name, radius, x, y) {
             model.updateSpec(name, radius, x, y);
         }
-/************************************************************************************************************/
+        
         function updateImple(x, y) {
             model.updateImple(x, y);
         }
@@ -187,7 +192,6 @@ var specsExercise = (function () {
         }
         
         return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
-/************************************************************************************************************/
     }
     
     function View(div, model, controller) {
@@ -224,9 +228,7 @@ var specsExercise = (function () {
                 
                 canvas.add(group1);
                 
-/************************************************************************************************************/
                 specsDisplay.append('<div class="well specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</div>');
-/************************************************************************************************************/
             }
             
             var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
@@ -250,15 +252,16 @@ var specsExercise = (function () {
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
                 
+/***************************************************************/
                 var point = obj.getCenterPoint();
                 if(obj.name === undefined)
-                    controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                    controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
                 
-/************************************************************************************************************/
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
                     if(obj.name === undefined)
-                        controller.updateSpec(obj.item(0).name, obj.item(0).radius, point.x, point.y);
+                        controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
+/***************************************************************/
                     else
                         controller.updateImple(point.x, point.y);
                     if(point.x > 448 | point.x < 0 | point.y > 448 | point.y < 0) {
@@ -266,7 +269,6 @@ var specsExercise = (function () {
                         obj.animate('top', randomInteger(350)+48, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                 });
-/************************************************************************************************************/
             });
         }
         
@@ -336,7 +338,6 @@ function checkOverlap(spec1, spec2) {
     var y2 = spec2.getY();
     var r2 = spec2.getRadius();
     var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    
     if (distance > (r1 + r2)) {
         console.log(spec1.getName()+" does not overlap "+spec2.getName());
     }
