@@ -1,8 +1,17 @@
 .specs {
+    width: 900px;
+    margin: auto auto;
+}
+
+.specs .nav-tabs {
+    width: 96px;
+    margin-left: 0;
+}
+
+.specs .tab-pane {
     border: 1px solid gray;
     height: 600px;
     width: 800px;
-    margin: auto auto;
 }
 
 .specs .short {
@@ -21,7 +30,7 @@
     width: 448;
 }
 
-.specs div {
+.specs .tab-pane div {
     float: left;
     border: 1px solid lightgray;
 }

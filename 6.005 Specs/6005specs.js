@@ -131,60 +131,65 @@ function UpdateHandler() {
 var specsExercise = (function () {    
     function Model() {
         var handler = UpdateHandler();
-        var specObjects = {};
-        var implementation;
-        var relationships;
+        var specObjects = [];
+        var implementation = [];
+        var relationships = [];
         
         function loadQuestion(specs, imple, rels) {
+            specObjects.push({});
+            var index = specObjects.length - 1;
             for(s in specs)
-                specObjects[specs[s].getName()] = specs[s];
-            implementation = imple;
-            relationships = rels;
+                specObjects[index][specs[s].getName()] = specs[s];
+            implementation.push(imple);
+            relationships.push(rels);
             //store the relationships
-            handler.trigger('loaded', [specs, imple]);
+            handler.trigger('loaded', [index, specs, imple]);
         }
         
-        function updateSpec(name, radius, x, y) {
+        function updateSpec(questionNumber, name, radius, x, y) {
             //update info for the appropriate spec
-            specObjects[name].setRadius(radius);
-            specObjects[name].setPosition(x, y);
+            specObjects[questionNumber][name].setRadius(radius);
+            specObjects[questionNumber][name].setPosition(x, y);
         }
    
 /***************************************************************/
-        function checkAnswer() {
+        function checkAnswer(questionNumber) {
+            var currentSpecs = specObjects[questionNumber];
+            var currentImple = implementation[questionNumber];
+            var currentRels = relationships[questionNumber];
             var correct = true;
             var alreadyChecked= [];
             var numRels = 0;
-            for(i in specObjects) {
+            for(i in currentSpecs) {
                 alreadyChecked.push(i+i);
-                for(j in specObjects) {
+                for(j in currentSpecs) {
                     if(alreadyChecked.indexOf(i+j) < 0 & alreadyChecked.indexOf(j+i) < 0) {
                         alreadyChecked.push(i+j);
-                        var newRel = checkOverlap(specObjects[i], specObjects[j]);
+                        var newRel = checkOverlap(currentSpecs[i], currentSpecs[j]);
                         if(newRel !== '') {
-                            var newRelRev = checkOverlap(specObjects[j], specObjects[i]);
-                            if(relationships.indexOf(newRel) < 0 & relationships.indexOf(newRelRev) < 0)
+                            var newRelRev = checkOverlap(currentSpecs[j], currentSpecs[i]);
+                            if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
                                 correct = false;
                             numRels++;
                         }
                     }
                 }
-                var newRel = checkOverlap(specObjects[i], implementation);
+                var newRel = checkOverlap(currentSpecs[i], currentImple);
                 if(newRel !== '') {
-                    var newRelRev = checkOverlap(implementation, specObjects[i]);
-                    if(relationships.indexOf(newRel) < 0 & relationships.indexOf(newRelRev) < 0)
+                    var newRelRev = checkOverlap(currentImple, currentSpecs[i]);
+                    if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
                         correct = false;
                     numRels++;
                 }
             }
-            if(numRels !== relationships.length)
+            if(numRels !== currentRels.length)
                 correct = false;
-            handler.trigger('checked', correct);
+            handler.trigger('checked', [questionNumber, correct]);
         }
 /***************************************************************/
         
-        function updateImple(x, y) {
-            implementation.setPosition(x, y);
+        function updateImple(questionNumber, x, y) {
+            implementation[questionNumber].setPosition(x, y);
         }
         
         return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
@@ -193,72 +198,96 @@ var specsExercise = (function () {
     function Controller(model) {
 
 
-        function loadQuestion(jsonThing) {
-            var specs = [], imple, relationships = [];
-/***************************************************************/
-            imple = new Imple(jsonThing['imple']['name'], jsonThing['imple']['text']);
-            for(s in jsonThing['specs']) {
-                var currentSpec = jsonThing['specs'][s];
-                specs.push(new Spec(s, currentSpec['text']));
-                for(o in currentSpec['contains']) {
-                    var relString = s+' contains '+currentSpec['contains'][o];
-                    if(relationships.indexOf(relString) < 0)
-                        relationships.push(relString);
+        function loadQuestions(bigJSON) {
+            for(j in bigJSON) {
+                var jsonThing = bigJSON[j];
+                var specs = [], imple, relationships = [];
+                imple = new Imple(jsonThing['imple']['name'], jsonThing['imple']['text']);
+                for(s in jsonThing['specs']) {
+                    var currentSpec = jsonThing['specs'][s];
+                    specs.push(new Spec(s, currentSpec['text']));
+                    for(o in currentSpec['contains']) {
+                        var relString = s+' contains '+currentSpec['contains'][o];
+                        if(relationships.indexOf(relString) < 0)
+                            relationships.push(relString);
+                    }
+                    for(o in currentSpec['intersects']) {
+                        var relString = s+' intersects '+currentSpec['intersects'][o];
+                        var relStringRev = currentSpec['intersects'][o]+' intersects '+s;
+                        if(relationships.indexOf(relString) < 0 & relationships.indexOf(relStringRev) < 0)
+                            relationships.push(relString);
+                    }
                 }
-                for(o in currentSpec['intersects']) {
-                    var relString = s+' intersects '+currentSpec['intersects'][o];
-                    var relStringRev = currentSpec['intersects'][o]+' intersects '+s;
-                    if(relationships.indexOf(relString) < 0 & relationships.indexOf(relStringRev) < 0)
-                        relationships.push(relString);
-                }
+    
+                model.loadQuestion(specs, imple, relationships);
             }
-/***************************************************************/
-
-            model.loadQuestion(specs, imple, relationships);
         }
-        function updateSpec(name, radius, x, y) {
-            model.updateSpec(name, radius, x, y);
+        function updateSpec(questionNumber, name, radius, x, y) {
+            model.updateSpec(questionNumber, name, radius, x, y);
         }
         
-        function updateImple(x, y) {
-            model.updateImple(x, y);
+        function updateImple(questionNumber, x, y) {
+            model.updateImple(questionNumber, x, y);
         }
         
-        function checkAnswer() {
-            model.checkAnswer();
+        function checkAnswer(questionNumber) {
+            model.checkAnswer(questionNumber);
         }
         
-        return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
+        return {loadQuestions: loadQuestions, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
     }
     
-    function View(div, model, controller) {
-        var vennDiagrams = $('<div class="vennDiagrams wide tall"><canvas id="c1" height="448" width="448"></canvas></div>');
+    function View(questionNumber, div, model, controller) {
+        var vennDiagrams = $('<div class="vennDiagrams wide tall"><canvas id="c'+questionNumber+'"height="448" width="448"></canvas></div>');
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
         var checkDisplay = $('<div class="checkDisplay wide short"></div>');
         
         var checkButton = $('<button class="btn btn-primary">Check</button>');
         checkDisplay.append(checkButton);
-        checkButton.on('click', controller.checkAnswer);
+        checkButton.on('click', function () {
+            controller.checkAnswer(questionNumber)
+        });
         var correctDisplay = $('<div class="alert alert-success">Correct!</div>');
         var wrongDisplay = $('<div class="alert alert-error">Wrong.</div>');
         checkDisplay.append(correctDisplay, wrongDisplay);
-        correctDisplay.hide();
-        wrongDisplay.hide();
+        
+        function displayAnswer(correct) {
+            if(correct) {
+                correctDisplay.show();
+                wrongDisplay.hide();
+            }
+            else {
+                wrongDisplay.show();
+                correctDisplay.hide();
+            }
+        }
+        
+        model.on('loaded', function (data) {
+            if(data[0] === parseInt(questionNumber))
+                loadSpecs([data[1], data[2]]);
+        });
+        model.on('checked', function (data) {
+            if(data[0] === questionNumber)
+                displayAnswer(data[1]);
+        });
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
-        var canvas = new fabric.Canvas('c1');
-        
         function loadSpecs(data) {
+            var canvas = new fabric.Canvas('c'+questionNumber);
+            canvas.on('after:render', function() {
+                canvas.calcOffset();
+            });
+            
+            correctDisplay.hide();
+            wrongDisplay.hide();
+            
             var specs = data[0];
             var imple = data[1];
             
-            canvas.clear();
-            specsDisplay.html('');
-            
             for(s in specs) {
-                var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.3),name: specs[s].getName()})
+                var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.3),name: specs[s].getName()});
                 var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-40});
                 var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
@@ -276,8 +305,8 @@ var specsExercise = (function () {
             canvas.forEachObject(function (obj) {
                 obj.on('selected', function () {
                     if(obj.name === undefined) {
-                        $('.impleSpan').css('background-color', 'white');
-                        $('.specSpan').each(function () {
+                        div.find('.impleSpan').css('background-color', 'white');
+                        div.find('.specSpan').each(function () {
                             if($(this).attr('data-id') === obj.item(1).text)
                                 $(this).css('background-color',obj.item(0).fill);
                             else
@@ -285,10 +314,10 @@ var specsExercise = (function () {
                         });
                     }
                     else {
-                        $('.specSpan').each(function () {
+                        div.find('.specSpan').each(function () {
                             $(this).css('background-color', 'white');
                         });
-                        $('.impleSpan').css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
+                        div.find('.impleSpan').css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
                     }
                 });
                 obj.lockUniScaling = true;
@@ -297,9 +326,9 @@ var specsExercise = (function () {
                 
                 var point = obj.getCenterPoint();
                 if(obj.name === undefined)
-                    controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
+                    controller.updateSpec(questionNumber, obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
                 else
-                    controller.updateImple(point.x, point.y);
+                    controller.updateImple(questionNumber, point.x, point.y);
                 
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
@@ -310,29 +339,20 @@ var specsExercise = (function () {
                         obj.animate('top', point.y, {onChange: canvas.renderAll.bind(canvas), duration: 100});
                     }
                     if(obj.name === undefined)
-                        controller.updateSpec(obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
+                        controller.updateSpec(questionNumber, obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
                     else
-                        controller.updateImple(point.x, point.y);
+                        controller.updateImple(questionNumber, point.x, point.y);
                 });
             });
         }
-        
-        function displayAnswer(correct) {
-            if(correct) {
-                correctDisplay.show();
-                wrongDisplay.hide();
-            }
-            else {
-                wrongDisplay.show();
-                correctDisplay.hide();
-            }
-        }
-        
-        model.on('loaded', loadSpecs);
-        model.on('checked', displayAnswer);
-        
-        var testJSON = {
-            'specs': {
+    }
+    
+    function setup(div) {
+        var model = Model();
+        var controller = Controller(model);
+        var testJSON = [
+            {"specs":{"f1":{"contains":["f5"],"intersects":["f2","f3"],"text":"oaehufphaewuhpuh"},"f2":{"contains":["f4"],"intersects":[],"text":"poesurhpsrhhcr"},"f3":{"contains":[],"intersects":[],"text":"erwuhvpurehhcru"},"f4":{"contains":[],"intersects":[],"text":"vpowrehfphrefrufhprf"}},"imple":{"name":"f5","text":"puwehfpwhepfhrpfhprehfp"}},
+            {'specs': {
                 'f1': {
                     'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
                     'contains': [],
@@ -367,17 +387,44 @@ var specsExercise = (function () {
             'imple': {
                 'name': 'f7',
                 'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-            }
-        };
+            }},
+            {'specs': {
+                'f1': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': [],
+                    'intersects': ['f2']
+                },
+                'f2': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': [],
+                    'intersects': []
+                },
+                'f3': {
+                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+                    'contains': ['f7'],
+                    'intersects': []
+                }
+            },
+            'imple': {
+                'name': 'f7',
+                'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+            }}
+        ];
         
-        controller.loadQuestion(testJSON);
-    }
-    
-    function setup(div) {
-        var model = Model();
-        var controller = Controller(model);
-        var view = View(div, model, controller);
-
+        div.addClass("tabbable tabs-right");
+        var navTabs = $('<ul class="nav nav-tabs"></ul>');
+        var tabContent = $('<div id="my-tab-content" class="tab-content"></div>');
+        var views = [];
+        for(j in testJSON) {
+            var qNum = parseInt(j)+1;
+            navTabs.append('<li><a data-toggle="tab" href="#question'+j+'tab">Question '+qNum+'</a></li>');
+            var newDiv = $('<div class="tab-pane" id="question'+j+'tab"></div>');
+            tabContent.append(newDiv);
+            var newView = View(j, newDiv, model, controller);
+            views.push(newView);
+        }
+        div.append(navTabs, tabContent);
+        controller.loadQuestions(testJSON);
     }
     
     return {setup: setup};
@@ -416,9 +463,6 @@ function checkOverlap(spec1, spec2) {
         return spec1.getName()+" intersects "+spec2.getName();
     }   
 }
-
-
-
 
 $(document).ready(function () {
     $('.specs').each(function () {
