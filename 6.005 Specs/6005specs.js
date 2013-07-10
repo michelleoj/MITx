@@ -307,6 +307,7 @@ var specsExercise = (function () {
             canvas.on('after:render', function() {
                 canvas.calcOffset();
             });
+
             
             correctDisplay.hide();
             wrongDisplay.hide();
