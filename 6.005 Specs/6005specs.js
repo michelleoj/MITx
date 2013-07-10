@@ -448,8 +448,6 @@ function checkOverlap(spec1, spec2) {
     }   
 }
 
-
-
 $(document).ready(function () {
     $('.specs').each(function () {
         specsExercise.setup($(this));
