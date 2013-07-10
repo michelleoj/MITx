@@ -154,7 +154,6 @@ var specsExercise = (function () {
             specObjects[questionNumber][name].setPosition(x, y);
         }
    
-/***************************************************************/
         function checkAnswer(questionNumber) {
             var currentSpecs = specObjects[questionNumber];
             var currentImples = impleObjects[questionNumber];
@@ -162,6 +161,8 @@ var specsExercise = (function () {
             var correct = true;
             var alreadyChecked= [];
             var numRels = 0;
+            var hint;
+            var correctRels = [];
             for(i in currentSpecs) {
                 alreadyChecked.push(i+i);
                 for(j in currentSpecs) {
@@ -170,8 +171,12 @@ var specsExercise = (function () {
                         var newRel = checkOverlap(currentSpecs[i], currentSpecs[j]);
                         if(newRel !== '') {
                             var newRelRev = checkOverlap(currentSpecs[j], currentSpecs[i]);
-                            if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
+                            if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0) {
+                                hint = newRel;
                                 correct = false;
+                            }
+                            else
+                                correctRels.push([newRel, newRelRev]);
                             numRels++;
                         }
                     }
@@ -180,17 +185,29 @@ var specsExercise = (function () {
                     var newRel = checkOverlap(currentSpecs[i], currentImples[k]);
                     if(newRel !== '') {
                         var newRelRev = checkOverlap(currentImples[k], currentSpecs[i]);
-                        if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
+                        if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0) {
+                            hint = newRel;
                             correct = false;
+                        }
+                        else
+                            correctRels.push([newRel, newRelRev]);
                         numRels++;
                     }
                 }
             }
-            if(numRels !== currentRels.length)
+            if(numRels !== currentRels.length) {
+                for(c in correctRels) {
+                    if(currentRels.indexOf(correctRels[c][0]) < 0 & currentRels.indexOf(correctRels[c][0]) < 0)
+                        hint = correctRels[c][0];
+                }
                 correct = false;
-            handler.trigger('checked', [questionNumber, correct]);
+                if(hint === undefined)
+                    hint = 'your implementation is incorrectly placed';
+                else
+                    hint += ' is an incorrect relationship';
+            }
+            handler.trigger('checked', [questionNumber, correct, hint]);
         }
-/***************************************************************/
         
         function updateImple(questionNumber, name, x, y) {
             impleObjects[questionNumber][name].setPosition(x, y);
@@ -259,12 +276,15 @@ var specsExercise = (function () {
         var wrongDisplay = $('<div class="alert alert-error">Wrong.</div>');
         checkDisplay.append(correctDisplay, wrongDisplay);
         
-        function displayAnswer(correct) {
+        function displayAnswer(data) {
+            var correct = data[0];
+            var hint = data[1];
             if(correct) {
                 correctDisplay.show();
                 wrongDisplay.hide();
             }
             else {
+                wrongDisplay.html(hint);
                 wrongDisplay.show();
                 correctDisplay.hide();
             }
@@ -276,7 +296,7 @@ var specsExercise = (function () {
         });
         model.on('checked', function (data) {
             if(data[0] === questionNumber)
-                displayAnswer(data[1]);
+                displayAnswer([data[1], data[2]]);
         });
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
@@ -296,8 +316,9 @@ var specsExercise = (function () {
             var imples = data[1];
             
             for(s in specs) {
-                var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.3),name: specs[s].getName()});
-                var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-40});
+                var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-10});
+                var circleWidth = Math.round(Math.max(50,text1.width));
+                var circle1 = new fabric.Circle({radius:circleWidth,fill: randomColor(0.3),name: specs[s].getName()});
                 var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
                 canvas.add(group1);
@@ -319,6 +340,9 @@ var specsExercise = (function () {
             }
             
             canvas.forEachObject(function (obj) {
+                obj.on('selected', function () {
+                    canvas.bringToFront(obj);
+                });
                 obj.lockUniScaling = true;
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
