@@ -1,7 +1,7 @@
 .container {
     width: 900px;
     margin: auto auto;
-    margin-bottom: 100px;
+    margin-bottom: 50px;
     
 }
 
@@ -16,14 +16,18 @@
 
 input {
     display: inline-block;
-    margin-right: 1px;
 }
 
 #result {
-    margin: 10px;
     background: #eee;
     padding: 10px;
     height: 40px;
     overflow: auto;
     
 }
+
+/*.imple {
+    position: relative;
+    width: 600px;
+    margin: auto auto;
+}*/

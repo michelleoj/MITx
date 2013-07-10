@@ -377,17 +377,7 @@ var specsExercise = (function () {
         var model = Model();
         var controller = Controller(model);
         var view = View(div, model, controller);
-        
-        var dataArray;
-        $('link[data-src]').each(function () {
-            var self = $(this);
-            src = self.attr('data-src');
-             $.get(src, function() {
-                 dataArray = fileHandler;
-             });
-        });
 
-        console.log(dataArray);
     }
     
     return {setup: setup};
@@ -427,16 +417,6 @@ function checkOverlap(spec1, spec2) {
     }   
 }
 
-
-function fileHandler(f) { // returns the array of the specs and the implementation
-    //invariant: the last item in the array is ALWAYS the implementation
-    //reads the file
-    var fileStr = f;
-    var specImplArray = fileStr.split("*/~");
-
-    return specImplArray;    
-    
-}
 
 
 
