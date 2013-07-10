@@ -132,18 +132,20 @@ var specsExercise = (function () {
     function Model() {
         var handler = UpdateHandler();
         var specObjects = [];
-        var implementation = [];
+        var impleObjects = [];
         var relationships = [];
         
-        function loadQuestion(specs, imple, rels) {
+        function loadQuestion(specs, imples, rels) {
             specObjects.push({});
+            impleObjects.push({});
             var index = specObjects.length - 1;
             for(s in specs)
                 specObjects[index][specs[s].getName()] = specs[s];
-            implementation.push(imple);
+            for(i in imples)
+                impleObjects[index][imples[i].getName()] = imples[i];
             relationships.push(rels);
             //store the relationships
-            handler.trigger('loaded', [index, specs, imple]);
+            handler.trigger('loaded', [index, specs, imples]);
         }
         
         function updateSpec(questionNumber, name, radius, x, y) {
@@ -155,7 +157,7 @@ var specsExercise = (function () {
 /***************************************************************/
         function checkAnswer(questionNumber) {
             var currentSpecs = specObjects[questionNumber];
-            var currentImple = implementation[questionNumber];
+            var currentImples = impleObjects[questionNumber];
             var currentRels = relationships[questionNumber];
             var correct = true;
             var alreadyChecked= [];
@@ -174,12 +176,14 @@ var specsExercise = (function () {
                         }
                     }
                 }
-                var newRel = checkOverlap(currentSpecs[i], currentImple);
-                if(newRel !== '') {
-                    var newRelRev = checkOverlap(currentImple, currentSpecs[i]);
-                    if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
-                        correct = false;
-                    numRels++;
+                for(k in currentImples) {
+                    var newRel = checkOverlap(currentSpecs[i], currentImples[k]);
+                    if(newRel !== '') {
+                        var newRelRev = checkOverlap(currentImples[k], currentSpecs[i]);
+                        if(currentRels.indexOf(newRel) < 0 & currentRels.indexOf(newRelRev) < 0)
+                            correct = false;
+                        numRels++;
+                    }
                 }
             }
             if(numRels !== currentRels.length)
@@ -188,8 +192,8 @@ var specsExercise = (function () {
         }
 /***************************************************************/
         
-        function updateImple(questionNumber, x, y) {
-            implementation[questionNumber].setPosition(x, y);
+        function updateImple(questionNumber, name, x, y) {
+            impleObjects[questionNumber][name].setPosition(x, y);
         }
         
         return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
@@ -201,8 +205,11 @@ var specsExercise = (function () {
         function loadQuestions(bigJSON) {
             for(j in bigJSON) {
                 var jsonThing = bigJSON[j];
-                var specs = [], imple, relationships = [];
-                imple = new Imple(jsonThing['imple']['name'], jsonThing['imple']['text']);
+                var specs = [], imples = [], relationships = [];
+                for(i in jsonThing['imples']) {
+                    var currentImple = jsonThing['imples'][i];
+                    imples.push(new Imple(i, currentImple['text']));
+                }
                 for(s in jsonThing['specs']) {
                     var currentSpec = jsonThing['specs'][s];
                     specs.push(new Spec(s, currentSpec['text']));
@@ -219,15 +226,15 @@ var specsExercise = (function () {
                     }
                 }
     
-                model.loadQuestion(specs, imple, relationships);
+                model.loadQuestion(specs, imples, relationships);
             }
         }
         function updateSpec(questionNumber, name, radius, x, y) {
             model.updateSpec(questionNumber, name, radius, x, y);
         }
         
-        function updateImple(questionNumber, x, y) {
-            model.updateImple(questionNumber, x, y);
+        function updateImple(questionNumber, name, x, y) {
+            model.updateImple(questionNumber, name, x, y);
         }
         
         function checkAnswer(questionNumber) {
@@ -276,6 +283,7 @@ var specsExercise = (function () {
         
         function loadSpecs(data) {
             var canvas = new fabric.Canvas('c'+questionNumber);
+            
             canvas.on('after:render', function() {
                 canvas.calcOffset();
             });
@@ -284,7 +292,7 @@ var specsExercise = (function () {
             wrongDisplay.hide();
             
             var specs = data[0];
-            var imple = data[1];
+            var imples = data[1];
             
             for(s in specs) {
                 var circle1 = new fabric.Circle({radius:50,fill: randomColor(0.3),name: specs[s].getName()});
@@ -293,33 +301,23 @@ var specsExercise = (function () {
                 
                 canvas.add(group1);
                 
-                specsDisplay.append('<pre class="prettyprint specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</pre>');
+                var newPre = $('<pre class="prettyprint specSpan" data-id="'+specs[s].getName()+'">'+specs[s].getSpec()+'</pre>');
+                specsDisplay.append(newPre);
+                newPre.css('background-color', circle1.fill);
             }
             
-            var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imple.getName(),top:randomInteger(428)+10, left:randomInteger(428)+10});
-            impleCircle.hasControls = false;
-            canvas.add(impleCircle);
-            
-            impleDisplay.html('<pre class="prettyprint impleSpan">'+imple.getSpec()+'</pre>');
+            for(i in imples) {
+                var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imples[i].getName(),
+                                                     top:randomInteger(428)+10, left:randomInteger(428)+10});
+                impleCircle.hasControls = false;
+                canvas.add(impleCircle);
+                
+                var newPre = $('<pre class="prettyprint impleSpan" data-id="'+imples[i].getName()+'">'+imples[i].getSpec()+'</pre>');
+                impleDisplay.append(newPre);
+                newPre.css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
+            }
             
             canvas.forEachObject(function (obj) {
-                obj.on('selected', function () {
-                    if(obj.name === undefined) {
-                        div.find('.impleSpan').css('background-color', 'white');
-                        div.find('.specSpan').each(function () {
-                            if($(this).attr('data-id') === obj.item(1).text)
-                                $(this).css('background-color',obj.item(0).fill);
-                            else
-                                $(this).css('background-color','white');
-                        });
-                    }
-                    else {
-                        div.find('.specSpan').each(function () {
-                            $(this).css('background-color', 'white');
-                        });
-                        div.find('.impleSpan').css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
-                    }
-                });
                 obj.lockUniScaling = true;
                 obj.selectionLineWidth = 5;
                 obj.hasRotatingPoint = false;
@@ -328,7 +326,7 @@ var specsExercise = (function () {
                 if(obj.name === undefined)
                     controller.updateSpec(questionNumber, obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
                 else
-                    controller.updateImple(questionNumber, point.x, point.y);
+                    controller.updateImple(questionNumber, obj.name, point.x, point.y);
                 
                 obj.on('modified', function () {
                     var point = obj.getCenterPoint();
@@ -341,7 +339,7 @@ var specsExercise = (function () {
                     if(obj.name === undefined)
                         controller.updateSpec(questionNumber, obj.item(0).name, obj.getBoundingRectWidth()/2, point.x, point.y);
                     else
-                        controller.updateImple(questionNumber, point.x, point.y);
+                        controller.updateImple(questionNumber, obj.name, point.x, point.y);
                 });
             });
         }
@@ -351,11 +349,13 @@ var specsExercise = (function () {
         var model = Model();
         var controller = Controller(model);
         var testJSON = [
-            {"specs":{"f1":{"contains":["f5"],"intersects":["f2","f3"],"text":"oaehufphaewuhpuh"},"f2":{"contains":["f4"],"intersects":[],"text":"poesurhpsrhhcr"},"f3":{"contains":[],"intersects":[],"text":"erwuhvpurehhcru"},"f4":{"contains":[],"intersects":[],"text":"vpowrehfphrefrufhprf"}},"imple":{"name":"f5","text":"puwehfpwhepfhrpfhprehfp"}},
+            {"specs":{"findSquares":{"contains":["f5"],"intersects":["f2","f3"],"text":"oaehufphaewuhpuh"},"f2":{"contains":["f4"],"intersects":[],"text":"poesurhpsrhhcr"},"f3":{"contains":[],"intersects":[],"text":"erwuhvpurehhcru"},"f4":{"contains":[],"intersects":[],"text":"vpowrehfphrefrufhprf"}},'imples': {
+                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
+            }},
             {'specs': {
                 'f1': {
                     'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': [],
+                    'contains': ['f8'],
                     'intersects': ['f2']
                 },
                 'f2': {
@@ -384,9 +384,9 @@ var specsExercise = (function () {
                     'intersects': []
                 }
             },
-            'imple': {
-                'name': 'f7',
-                'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+            'imples': {
+                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'},
+                'f8': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
             }},
             {'specs': {
                 'f1': {
@@ -405,20 +405,23 @@ var specsExercise = (function () {
                     'intersects': []
                 }
             },
-            'imple': {
-                'name': 'f7',
-                'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
+            'imples': {
+                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
             }}
         ];
         
-        div.addClass("tabbable tabs-right");
         var navTabs = $('<ul class="nav nav-tabs"></ul>');
         var tabContent = $('<div id="my-tab-content" class="tab-content"></div>');
         var views = [];
         for(j in testJSON) {
             var qNum = parseInt(j)+1;
-            navTabs.append('<li><a data-toggle="tab" href="#question'+j+'tab">Question '+qNum+'</a></li>');
+            var newTab = $('<li><a id="showQuestion'+j+'" data-toggle="tab" href="#question'+j+'tab">Question '+qNum+'</a></li>');
+            navTabs.append(newTab);
             var newDiv = $('<div class="tab-pane" id="question'+j+'tab"></div>');
+            if(j === '0') {
+                newTab.addClass('active');
+                newDiv.addClass('active');
+            }
             tabContent.append(newDiv);
             var newView = View(j, newDiv, model, controller);
             views.push(newView);

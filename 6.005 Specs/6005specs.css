@@ -1,11 +1,10 @@
 .specs {
-    width: 900px;
+    width: 802px;
     margin: auto auto;
 }
 
 .specs .nav-tabs {
-    width: 96px;
-    margin-left: 0;
+    margin-bottom: 0;
 }
 
 .specs .tab-pane {
