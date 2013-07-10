@@ -25,34 +25,53 @@ $(document).ready(function() {
             
         });
         
-        jsonThing['imple'] = {};
-        jsonThing['imple']['name'] = $('.imple').find('input').val();
-        jsonThing['imple']['text'] = $('.imple').find('textarea').val();
+        jsonThing['imples'] = {};
+        $('.imple div').each(function() {
+            var name = $(this).find('.name').val();
+            jsonThing['imples'][name] = {};
+            jsonThing['imples'][name]['text'] = $(this).find('textarea').val();
+        });
         
         $("#result").text(JSON.stringify(jsonThing));
-    
+        
     }
     
-    var counter = 1; 
+    var counterspec = 1; 
+    var counterimple = 1;
 
     function addSpec() {
         console.log("here");
-        counter += 1; 
-        var spec = $("<div style='margin-right: 5px;' class='spec" + counter +  "'><span><input class='name' style='width:78px; margin-right: 4px;' type='text' placeholder='Spec name...'><input class='intersects' style='width:78px; margin-right: 4px;' type='text' placeholder='Intersections'><input class='contains' style='width:78px' type='text' placeholder='Contains'></span><br><textarea class='input-xlarge' rows='4' placeholder='Enter spec...'></textarea><br><br></div>");
+        counterspec += 1; 
+        var spec = $("<div style='margin-right: 5px;' class='spec" + counterspec +  "'><span><input class='name' style='width:78px; margin-right: 4px;' type='text' placeholder='Spec name...'><input class='intersects' style='width:78px; margin-right: 4px;' type='text' placeholder='Intersections'><input class='contains' style='width:78px' type='text' placeholder='Contains'></span><br><textarea class='input-xlarge' rows='4' placeholder='Enter spec...'></textarea><br><br></div>");
         $(".specs").append(spec);
-        console.log(counter);
     }
     
         
     function decSpec() {
-        var str = ".spec" + counter;
-        var elem = $(".spec" + counter).remove();
-        counter -= 1;
+        $(".spec" + counterspec).remove();
+        counterspec -= 1;
         
         
     }
     
+    function addImple() {
+        counterimple += 1;
+        var imple = $('<div class="imple' + counterimple + '">' +
+                    '<input class="name span6" type="text" placeholder="Implementation name..."><br>' +
+                    '<textarea class="span6" style="height: 200px" placeholder="Enter implementation"></textarea>' +
+                '</div>');
+        $(".imple").append(imple);     
+    }
+    
+    function decImple() {
+        $(".imple" + counterimple).remove();
+        counterimple -= 1;  
+    }
+    
     $(".add").on('click', addSpec);
     $(".dec").on('click', decSpec);
+    
+    $(".addi").on('click', addImple);
+    $(".deci").on('click', decImple);
     $("button[type='submit']").on('click', submit);
 });

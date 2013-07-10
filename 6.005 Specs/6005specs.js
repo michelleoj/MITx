@@ -276,9 +276,8 @@ var specsExercise = (function () {
         
         function loadSpecs(data) {
             var canvas = new fabric.Canvas('c'+questionNumber);
-            canvas.on('after:render', function() {
-                canvas.calcOffset();
-            });
+            canvas.renderAll();
+            canvas.calcOffset();
             
             correctDisplay.hide();
             wrongDisplay.hide();
