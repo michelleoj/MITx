@@ -8,14 +8,14 @@ $(document).ready(function() {
             jsonThing['specs'][name] = {};
             
             if ($(this).find('.contains').val() !== "") {
-                jsonThing['specs'][name]['contains'] = $(this).find('.contains').val().split(',');
+                jsonThing['specs'][name]['contains'] = $(this).find('.contains').val().split(/[\s,]+/);
             }
             else {
                 jsonThing['specs'][name]['contains'] = [];
             }
             
             if ($(this).find('.intersects').val() !== "") {
-                jsonThing['specs'][name]['intersects'] = $(this).find('.intersects').val().split(',');
+                jsonThing['specs'][name]['intersects'] = $(this).find('.intersects').val().split(/[\s,]+/);
             }
             else {
                 jsonThing['specs'][name]['intersects'] = [];
@@ -38,7 +38,7 @@ $(document).ready(function() {
     function addSpec() {
         console.log("here");
         counter += 1; 
-        var spec = $("<div class='spec" + counter +  "'><span><input class='name' style='width:78px' type='text' placeholder='Spec name...'><input class='intersects' style='width:78px' type='text' placeholder='Intersections'><input class='contains' style='width:78px' type='text' placeholder='Contains'></span><br><textarea class='input-xlarge' rows='4' placeholder='Enter spec...'></textarea><br><br></div>");
+        var spec = $("<div style='margin-right: 5px;' class='spec" + counter +  "'><span><input class='name' style='width:78px; margin-right: 4px;' type='text' placeholder='Spec name...'><input class='intersects' style='width:78px; margin-right: 4px;' type='text' placeholder='Intersections'><input class='contains' style='width:78px' type='text' placeholder='Contains'></span><br><textarea class='input-xlarge' rows='4' placeholder='Enter spec...'></textarea><br><br></div>");
         $(".specs").append(spec);
         console.log(counter);
     }
