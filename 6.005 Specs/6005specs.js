@@ -335,6 +335,7 @@ var specsExercise = (function () {
         model.on('checked', displayAnswer);
         
         var testJSON = [
+            {"specs":{"f1":{"contains":["f5"],"intersects":["f2","f3"],"text":"oaehufphaewuhpuh"},"f2":{"contains":["f4"],"intersects":[],"text":"poesurhpsrhhcr"},"f3":{"contains":[],"intersects":[],"text":"erwuhvpurehhcru"},"f4":{"contains":[],"intersects":[],"text":"vpowrehfphrefrufhprf"}},"imple":{"name":"f5","text":"puwehfpwhepfhrpfhprehfp"}},
             {'specs': {
                 'f1': {
                     'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
@@ -408,17 +409,6 @@ var specsExercise = (function () {
         var model = Model();
         var controller = Controller(model);
         var view = View(div, model, controller);
-        
-        var dataArray;
-        $('link[data-src]').each(function () {
-            var self = $(this);
-            src = self.attr('data-src');
-             $.get(src, function() {
-                 dataArray = fileHandler;
-             });
-        });
-
-        console.log(dataArray);
     }
     
     return {setup: setup};
@@ -456,17 +446,6 @@ function checkOverlap(spec1, spec2) {
     else {  // if (distance <= r1 + r2)
         return spec1.getName()+" intersects "+spec2.getName();
     }   
-}
-
-
-function fileHandler(f) { // returns the array of the specs and the implementation
-    //invariant: the last item in the array is ALWAYS the implementation
-    //reads the file
-    var fileStr = f;
-    var specImplArray = fileStr.split("*/~");
-
-    return specImplArray;    
-    
 }
 
 

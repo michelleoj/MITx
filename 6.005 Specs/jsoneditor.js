@@ -8,14 +8,14 @@ $(document).ready(function() {
             jsonThing['specs'][name] = {};
             
             if ($(this).find('.contains').val() !== "") {
-                jsonThing['specs'][name]['contains'] = $(this).find('.contains').val().split(',');
+                jsonThing['specs'][name]['contains'] = $(this).find('.contains').val().split(/[\s,]+/);
             }
             else {
                 jsonThing['specs'][name]['contains'] = [];
             }
             
             if ($(this).find('.intersects').val() !== "") {
-                jsonThing['specs'][name]['intersects'] = $(this).find('.intersects').val().split(',');
+                jsonThing['specs'][name]['intersects'] = $(this).find('.intersects').val().split(/[\s,]+/);
             }
             else {
                 jsonThing['specs'][name]['intersects'] = [];
