@@ -149,7 +149,6 @@ var specsExercise = (function () {
                 impleObjects[index][imples[i].getName()] = imples[i];
             relationships.push(rels);
             //store the relationships
-            console.log(specs, imples);
             handler.trigger('loaded', [index, specs, imples]);
         }
         
@@ -313,6 +312,9 @@ var specsExercise = (function () {
                 canvas.calcOffset();
             });
 
+            $('#showQuestion'+questionNumber).on('click', function (evt) {
+                setTimeout(function(){canvas.renderAll();},500);
+            });
             
             correctDisplay.hide();
             wrongDisplay.hide();
@@ -341,7 +343,7 @@ var specsExercise = (function () {
                 
                 var newPre = $('<pre class="prettyprint impleSpan" data-id="'+imples[i].getName()+'">'+imples[i].getSpec()+'</pre>');
                 impleDisplay.append(newPre);
-                newPre.css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
+                newPre.css('background-color', impleCircle.fill.replace(',1)',',0.5)'));
             }
             
             canvas.forEachObject(function (obj) {
