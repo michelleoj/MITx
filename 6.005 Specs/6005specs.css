@@ -52,11 +52,13 @@
 }
 
 .specs .specsDisplay {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .specs .impleDisplay {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .specs pre {
