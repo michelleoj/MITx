@@ -35,6 +35,7 @@ function Spec(name, text, color) {
     this.y = 0;
 }
 
+//getters and setters
 Spec.prototype = {
     constructor: Spec,
     getName: function() {
@@ -93,11 +94,11 @@ inherit(Imple, Spec);
 
 //------------------------------
 
-/*
-
-AN EVENT HANDLER
-
-*/
+//*************************************************
+//*
+//*             ----- EVENT HANDLER -----
+//*
+//*************************************************
 function UpdateHandler() {
     var handlers = {};
     
@@ -132,13 +133,27 @@ function UpdateHandler() {
     return {on: on, trigger: trigger};
 }
 
-var specsExercise = (function () {    
+//makes the module accessible 
+var specsExercise = (function () {  
+    
+    //*************************************************
+    //*
+    //*                ----- MODEL -----
+    //*
+    //*************************************************
     function Model() {
         var handler = UpdateHandler();
         var specObjects = [];
         var impleObjects = [];
         var relationships = [];
         
+        /*
+        Places all the spec and imple objects into an array data type and sends the trigger message 'loaded'
+        
+        @specs array of spec objects
+        @imples array of imple objects
+        @rels array of relationships
+        */
         function loadQuestion(specs, imples, rels) {
             specObjects.push({});
             impleObjects.push({});
@@ -152,12 +167,28 @@ var specsExercise = (function () {
             handler.trigger('loaded', [index, specs, imples]);
         }
         
+        /*
+        Sets the radius and position of the object at the current question
+        
+        @questionNumber a positive int
+        @name a string name of the spec
+        @radius a positive int
+        @x a positive int
+        @y a positive int
+        */
         function updateSpec(questionNumber, name, radius, x, y) {
             //update info for the appropriate spec
             specObjects[questionNumber][name].setRadius(radius);
             specObjects[questionNumber][name].setPosition(x, y);
         }
-   
+        
+        /*
+        Checks all the relationships between the objects based on current question.
+        Displays hint if there is an incorrect relationship. Sends the trigger message
+        'checked' when finished. 
+        
+        @questionNumber a positive int
+        */
         function checkAnswer(questionNumber) {
             var currentSpecs = specObjects[questionNumber];
             var currentImples = impleObjects[questionNumber];
@@ -213,6 +244,14 @@ var specsExercise = (function () {
             handler.trigger('checked', [questionNumber, correct, hint]);
         }
         
+        /*
+        Updates the Imple object in the current question
+        
+        @questionNumber a positive int
+        @name a string of the name of the imple object
+        @x a positive int
+        @y a positive int
+        */
         function updateImple(questionNumber, name, x, y) {
             impleObjects[questionNumber][name].setPosition(x, y);
         }
@@ -220,9 +259,18 @@ var specsExercise = (function () {
         return {loadQuestion: loadQuestion, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer, on: handler.on};
     }
     
+    //*************************************************
+    //*
+    //*             ----- CONTROLLER -----
+    //*
+    //*************************************************
     function Controller(model) {
 
-
+        /*
+        Formats the questions from JSON into either a Spec object or Imple object
+        
+        @bigJSON the JSON string 
+        */
         function loadQuestions(bigJSON) {
             for(j in bigJSON) {
                 var jsonThing = bigJSON[j];
@@ -246,18 +294,42 @@ var specsExercise = (function () {
                             relationships.push(relString);
                     }
                 }
-    
+                //tells model to fire the 'loaded' message
                 model.loadQuestion(specs, imples, relationships);
             }
         }
+        
+        /*
+        Triggers the event that loads the next Spec object 
+        
+        @questionNumber a positive int 
+        @name a string
+        @radius a positive int
+        @x a positive int
+        @y a positive int
+        */
         function updateSpec(questionNumber, name, radius, x, y) {
             model.updateSpec(questionNumber, name, radius, x, y);
         }
         
+        /*
+        Triggers the event that loads the next Imple object 
+        
+        @questionNumber a positive int 
+        @name a string
+        @radius a positive int
+        @x a positive int
+        @y a positive int
+        */
         function updateImple(questionNumber, name, x, y) {
             model.updateImple(questionNumber, name, x, y);
         }
         
+        /*
+        Triggers the check answer event
+        
+        @questionNumber a positive int
+        */
         function checkAnswer(questionNumber) {
             model.checkAnswer(questionNumber);
         }
@@ -265,7 +337,14 @@ var specsExercise = (function () {
         return {loadQuestions: loadQuestions, updateSpec: updateSpec, updateImple: updateImple, checkAnswer: checkAnswer};
     }
     
+    //*************************************************
+    //*
+    //*                ----- VIEW -----
+    //*
+    //*************************************************
     function View(questionNumber, div, model, controller) {
+        
+        //initializing the html objects
         var vennDiagrams = $('<div class="vennDiagrams wide tall"><canvas id="c'+questionNumber+'"height="448" width="448"></canvas></div>');
         var specsDisplay = $('<div class="specsDisplay narrow tall"></div>');
         var impleDisplay = $('<div class="impleDisplay narrow short"></div>');
@@ -280,6 +359,11 @@ var specsExercise = (function () {
         var wrongDisplay = $('<div class="alert alert-error">Wrong.</div>');
         checkDisplay.append(correctDisplay, wrongDisplay);
         
+        /*
+        Displays the feedback and hints based on the user's answers
+        
+        @data the user's test questions containing both the specs and the implementation objects
+        */
         function displayAnswer(data) {
             var correct = data[0];
             var hint = data[1];
@@ -294,6 +378,7 @@ var specsExercise = (function () {
             }
         }
         
+        //event listeners for when pages has loaded and when 'check' button has been clicked.
         model.on('loaded', function (data) {
             if(data[0] === parseInt(questionNumber))
                 loadSpecs([data[1], data[2]]);
@@ -305,6 +390,13 @@ var specsExercise = (function () {
         
         div.append(vennDiagrams, specsDisplay, checkDisplay, impleDisplay);
         
+        /*
+        Initializes and displays the spec objects onto the canvas and keeps track of the canvas' state. 
+        Initializes the feedback displays. Also displays the descriptions of the specs
+        and implementation.
+        
+        @data the user's test questions containing both the specs and the implementation objects
+        */
         function loadSpecs(data) {
             var canvas = new fabric.Canvas('c'+questionNumber);
             
@@ -316,6 +408,7 @@ var specsExercise = (function () {
                 setTimeout(function(){canvas.renderAll();},500);
             });
             
+            //feedback
             correctDisplay.hide();
             wrongDisplay.hide();
             
@@ -377,9 +470,16 @@ var specsExercise = (function () {
         }
     }
     
+    /*
+    Sets up the module 
+    @div a div object of where the module is to be placed
+    @returns a public fuction "setup" to be invoked by the user
+    */
     function setup(div) {
         var model = Model();
         var controller = Controller(model);
+        
+        //test questions
         var testJSON = [
             {"specs":{"f1":{"contains":[],"intersects":["f2"],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,139,0.5)"},"f2":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,100,0,0.5)"},"f3":{"contains":["f4"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(169,169,169,0.5)"}},"imples":{"f4":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,255,0,1)"}}},
             {"specs":{"f1":{"contains":["f7"],"intersects":["f2","f3"],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,139,0.5)"},"f2":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,255,0,0.5)"},"f3":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,139,139,0.5)"},"f4":{"contains":["f5","f6"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(128,0,0,0.5)"},"f5":{"contains":["f6"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,255,0.5)"}},"imples":{"f6":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,0,255,1)"},"f7":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,0,0,1)"}}}
@@ -388,6 +488,8 @@ var specsExercise = (function () {
         var navTabs = $('<ul class="nav nav-tabs"></ul>');
         var tabContent = $('<div id="my-tab-content" class="tab-content"></div>');
         var views = [];
+        
+        //displays first test question on page load
         for(j in testJSON) {
             var qNum = parseInt(j)+1;
             var newTab = $('<li><a id="showQuestion'+j+'" data-toggle="tab" href="#question'+j+'tab">Question '+qNum+'</a></li>');
@@ -408,10 +510,23 @@ var specsExercise = (function () {
     return {setup: setup};
 })();
 
+/*
+A random integer restricted by the bound
+@bound a positive int
+@returns a random int restricted on the bound
+
+*/
 function randomInteger(bound) {
     return Math.round(Math.random()*bound);
 }
 
+
+
+/* 
+Checks if one circle overlaps, contains, or is contained by the other
+@spec1, @spec2 spec objects representing circles on the canvas
+@returns a string identifying the relationship between spec1 and spec2
+*/
 function checkOverlap(spec1, spec2) {
     var x1 = spec1.getX();
     var y1 = spec1.getY();
