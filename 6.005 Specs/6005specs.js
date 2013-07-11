@@ -24,12 +24,13 @@ function inherit(child, parent) {
 }
 
 //Specs object
-function Spec(name, text) {
+function Spec(name, text, color) {
     this.name = name;
     this.text = text;
     this.radius = 0;
     this.specsContained = [];
     this.specsIntersected = [];
+    this.color = color;
     this.x = 0;
     this.y = 0;
 }
@@ -51,14 +52,17 @@ Spec.prototype = {
     getY: function() {
         return this.y;
     },
+    getColor: function() {
+        return this.color;
+    },
     contains: function(name) {
         return this.specsContained.indexOf(name) >= 0;
     },
     intersects: function(name) {
         return this.specsIntersected.indexOf(name) >= 0;
     },
-    setName: function(n) {
-        this.name = n;
+    setColor: function(c) {
+        this.color = c;
     },
     setText: function(t) {
         this.text = t;
@@ -81,8 +85,8 @@ Spec.prototype = {
 
 // Implementation object
 
-function Imple(name, text) {
-    Spec.call(this, name, text);
+function Imple(name, text, color) {
+    Spec.call(this, name, text, color);
 }
 
 inherit(Imple, Spec);
@@ -225,11 +229,11 @@ var specsExercise = (function () {
                 var specs = [], imples = [], relationships = [];
                 for(i in jsonThing['imples']) {
                     var currentImple = jsonThing['imples'][i];
-                    imples.push(new Imple(i, currentImple['text']));
+                    imples.push(new Imple(i, currentImple['text'], currentImple['color']));
                 }
                 for(s in jsonThing['specs']) {
                     var currentSpec = jsonThing['specs'][s];
-                    specs.push(new Spec(s, currentSpec['text']));
+                    specs.push(new Spec(s, currentSpec['text'], currentSpec['color']));
                     for(o in currentSpec['contains']) {
                         var relString = s+' contains '+currentSpec['contains'][o];
                         if(relationships.indexOf(relString) < 0)
@@ -308,6 +312,9 @@ var specsExercise = (function () {
                 canvas.calcOffset();
             });
 
+            $('#showQuestion'+questionNumber).on('click', function (evt) {
+                setTimeout(function(){canvas.renderAll();},500);
+            });
             
             correctDisplay.hide();
             wrongDisplay.hide();
@@ -318,7 +325,7 @@ var specsExercise = (function () {
             for(s in specs) {
                 var text1 = new fabric.Text(specs[s].getName(), {fontSize: 20, top:-10});
                 var circleWidth = Math.round(Math.max(50,text1.width));
-                var circle1 = new fabric.Circle({radius:circleWidth,fill: randomColor(0.3),name: specs[s].getName()});
+                var circle1 = new fabric.Circle({radius:circleWidth,fill: specs[s].getColor(),name: specs[s].getName()});
                 var group1 = new fabric.Group([circle1, text1], {top:randomInteger(350)+48, left:randomInteger(350)+48});
                 
                 canvas.add(group1);
@@ -329,14 +336,14 @@ var specsExercise = (function () {
             }
             
             for(i in imples) {
-                var impleCircle = new fabric.Circle({radius:10,fill: randomColor(1),name: imples[i].getName(),
+                var impleCircle = new fabric.Circle({radius:10,fill: imples[i].getColor(),name: imples[i].getName(),
                                                      top:randomInteger(428)+10, left:randomInteger(428)+10});
                 impleCircle.hasControls = false;
                 canvas.add(impleCircle);
                 
                 var newPre = $('<pre class="prettyprint impleSpan" data-id="'+imples[i].getName()+'">'+imples[i].getSpec()+'</pre>');
                 impleDisplay.append(newPre);
-                newPre.css('background-color', impleCircle.fill.replace(',1)',',0.3)'));
+                newPre.css('background-color', impleCircle.fill.replace(',1)',',0.5)'));
             }
             
             canvas.forEachObject(function (obj) {
@@ -374,65 +381,8 @@ var specsExercise = (function () {
         var model = Model();
         var controller = Controller(model);
         var testJSON = [
-            {"specs":{"findSquares":{"contains":["f5"],"intersects":["f2","f3"],"text":"oaehufphaewuhpuh"},"f2":{"contains":["f4"],"intersects":[],"text":"poesurhpsrhhcr"},"f3":{"contains":[],"intersects":[],"text":"erwuhvpurehhcru"},"f4":{"contains":[],"intersects":[],"text":"vpowrehfphrefrufhprf"}},'imples': {
-                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
-            }},
-            {'specs': {
-                'f1': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': ['f8'],
-                    'intersects': ['f2']
-                },
-                'f2': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': [],
-                    'intersects': []
-                },
-                'f3': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': ['f7'],
-                    'intersects': []
-                },
-                'f4': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': ['f5','f6'],
-                    'intersects': []
-                },
-                'f5': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': ['f6'],
-                    'intersects': []
-                },
-                'f6': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': [],
-                    'intersects': []
-                }
-            },
-            'imples': {
-                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'},
-                'f8': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
-            }},
-            {'specs': {
-                'f1': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': [],
-                    'intersects': ['f2']
-                },
-                'f2': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': [],
-                    'intersects': []
-                },
-                'f3': {
-                    'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise',
-                    'contains': ['f7'],
-                    'intersects': []
-                }
-            },
-            'imples': {
-                'f7': {'text': 'boolean f1(int a, int b) {...}<br>@requires a, b are integers<br>@effects true if equal, false otherwise'}
-            }}
+            {"specs":{"f1":{"contains":[],"intersects":["f2"],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,139,0.5)"},"f2":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,100,0,0.5)"},"f3":{"contains":["f4"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(169,169,169,0.5)"}},"imples":{"f4":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,255,0,1)"}}},
+            {"specs":{"f1":{"contains":["f7"],"intersects":["f2","f3"],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,139,0.5)"},"f2":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,255,0,0.5)"},"f3":{"contains":[],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,139,139,0.5)"},"f4":{"contains":["f5","f6"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(128,0,0,0.5)"},"f5":{"contains":["f6"],"intersects":[],"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(0,0,255,0.5)"}},"imples":{"f6":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,0,255,1)"},"f7":{"text":"boolean f1(int a, int b) {...}\n@requires a, b are integers\n@effects true if equal, false otherwise","color":"rgba(255,0,0,1)"}}}
         ];
         
         var navTabs = $('<ul class="nav nav-tabs"></ul>');
@@ -460,14 +410,6 @@ var specsExercise = (function () {
 
 function randomInteger(bound) {
     return Math.round(Math.random()*bound);
-}
-
-function randomColor(opacity) {
-    return 'rgba('+
-        randomInteger(255)+','+
-        randomInteger(255)+','+
-        randomInteger(255)+','+
-        opacity+')';
 }
 
 function checkOverlap(spec1, spec2) {
